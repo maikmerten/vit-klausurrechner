@@ -1,0 +1,102 @@
+body {
+	font-family: sans-serif;
+	padding: 0px;
+	margin: 0px;
+	margin-top:2em;
+}
+
+th, td {
+	padding: 2px;
+}
+
+th {
+	background-color: rgb(75,75,75);
+	color: white;
+}
+
+
+tr:nth-child(even) {
+	background: rgb(210,210,230);
+}
+
+tr:nth-child(odd) {
+	background: rgb(240,240,250);
+}
+
+tr:nth-child(even) td.highlight {
+	background: rgb(240,200,200);
+}
+
+tr:nth-child(odd) td.highlight {
+	background: rgb(250,220,220);
+}
+
+
+tr:hover {
+	background: Orange;
+}
+tr:hover td.highlight {
+	background: Orange;
+}
+tr:hover td.highlight2 {
+	background: Orange;
+}
+
+div#head {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	margin: 0px;
+	padding: 5px;
+}
+
+div#head-right {
+	float:right;
+}
+
+div#container {
+	margin-top:10px;
+	padding:10px;
+}
+
+table {
+	box-shadow: 0px 5px 5px rgb(150,150,150);
+}
+
+
+input:focus {
+	background-color: rgb(255,210,100);
+}
+
+.ui {
+	background: rgb(220,220,220);
+	padding: 5px;
+	box-shadow: 0px 5px 5px rgb(150,150,150);
+}
+
+.good {
+	background: rgb(100,255,100) !important;
+}
+
+.bad {
+	background: red !important;
+}
+
+#status {
+	display: inline-block;
+	margin-left:2cm;
+}
+
+.chart {
+	z-index: -100;
+	width: 75vw;
+	height: 50vh;
+}
+
+@media print {
+	.noprint { display: none }
+	table { box-shadow: 0px 0px 0px white;}
+	.ui { background: white; box-shadow: 0px 0px 0px white;}
+}
+
