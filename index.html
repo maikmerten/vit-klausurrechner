@@ -442,7 +442,7 @@ function load() {
 function exportPunkteCSV() {
 	var string = klausur.exportPunkteCSV();
 	var link = document.getElementById("exportPunkteCSV");
-	link.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(string);
+	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
 	return true;
 }
 
@@ -469,7 +469,7 @@ function exportAuswertungCSV() {
 	var string = klausur.exportAuswertungCSV();
 	var link = document.getElementById("exportAuswertungCSV");
 	
-	link.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(string);
+	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
 	return true;
 }
 
