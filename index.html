@@ -288,7 +288,8 @@ function showAuswertung() {
 	table.append(tr);
 	tr.append(kopf("Kennz."));
 	tr.append(kopf("Rangp. Gesamt"));
-	tr.append(kopf("Gesamtnote"));
+	tr.append(kopf("Rangp. Ganzzahl"));
+	tr.append(kopf("Klausurnote"));
 	tr.append(kopf("Pkt. Textaufg."));
 	tr.append(kopf("% Textaufg."));
 	tr.append(kopf("Rangp. Textaufg."));
@@ -303,7 +304,8 @@ function showAuswertung() {
 		table.append(tr);
 		tr.append(zelle(kennziffer, "", "Kennziffer"));
 		tr.append(zelle(eintrag.rangpunkteGesamt, rpKlasse(eintrag.rangpunkteGesamt), "Rangpunkte gesamt"));
-		tr.append($("<td title='Gesamtnote'>" + eintrag.noteGesamt + "</td>", "", "Gesamtnote"));
+		tr.append(zelle(eintrag.rangpunkteGanzzahl, rpKlasse(eintrag.rangpunkteGanzzahl), "Rangpunkte ganzzahlig"));
+		tr.append($("<td title='Klausurnote'>" + eintrag.noteGesamt + "</td>", "", "Klausurnote"));
 		tr.append(zelle(eintrag.punkteTXT, "", "Punkte Textaufgaben"));
 		tr.append(zelle(eintrag.prozentTXT.toFixed(3), "", "Prozent Textaufgaben"));
 		tr.append(zelle(eintrag.rangpunkteTXT, rpKlasse(eintrag.rangpunkteTXT), "Rangpunkte Textaufgaben"));
@@ -328,7 +330,7 @@ function showStatistics() {
 	let keys = Object.keys(auswertung.eintraege);
 	for(let i = 0; i < keys.length; ++i) {
 		let eintrag = auswertung.eintraege[keys[i]];
-		let rp = eintrag.rangpunkteGesamt | 0;
+		let rp = eintrag.rangpunkteGanzzahl | 0;
 		ray[15 - rp]++;
 	}
 

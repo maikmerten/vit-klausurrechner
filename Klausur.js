@@ -87,13 +87,14 @@ Klausur.prototype.exportAuswertungCSV = function() {
 	}
 
 	let auswertung = this.getAuswertung();
-	let result = "Kennziffer;Rangpunkte gesamt;Gesamtnote;Punkte Textaufgaben;Rangpunkte Textaufg.;Punkte MC; Rangpunkte MC";
+	let result = "Kennziffer;Rangpunkte gesamt;Rangpunkte ganzzahlig;Klausurnote;Punkte Textaufgaben;Rangpunkte Textaufg.;Punkte MC; Rangpunkte MC";
 
 	for(let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
 		result += "\n";
 		result += kennziffer + ";";
 		result += formatNumber(eintrag.rangpunkteGesamt) + ";";
+		result += formatNumber(eintrag.rangpunkteGanzzahl) + ";";
 		result += (eintrag.noteGesamt != null ? eintrag.noteGesamt.replace("ü","ue") : "") + ";";
 		result += formatNumber(eintrag.punkteTXT) + ";";
 		result += formatNumber(eintrag.rangpunkteTXT) + ";";
@@ -369,6 +370,19 @@ Klausur.prototype.getRangpunkteGesamt = function(erreichbarTXT, erreichbarMC, ra
 	return rangpunkte;
 }
 
+Klausur.prototype.getRangpunkteGanzzahl = function(rangpunkte) {
+	let rpganz = rangpunkte;
+	if(rpganz < 5.0) {
+		// nicht bestanden, abrunden
+		rpganz = Math.floor(rangpunkte);
+	} else {
+		// bestanden, kaufmännisch runden
+		rpganz = Math.round(rangpunkte);
+	}
+
+	return rpganz;
+}
+
 
 Klausur.prototype.getAuswertung = function() {
 	let erreichbarTXT = this.getErreichbarePunkte(false);
@@ -393,7 +407,8 @@ Klausur.prototype.getAuswertung = function() {
 		eintrag.rangpunkteTXT = this.getRangpunkteFuerProzent(eintrag.prozentTXT, false);
 
 		eintrag.rangpunkteGesamt = this.getRangpunkteGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
-		eintrag.noteGesamt = this.getNote(eintrag.rangpunkteGesamt);
+		eintrag.rangpunkteGanzzahl = this.getRangpunkteGanzzahl(eintrag.rangpunkteGesamt);
+		eintrag.noteGesamt = this.getNote(eintrag.rangpunkteGanzzahl);
 		eintraege[i] = eintrag;
 	}
 
