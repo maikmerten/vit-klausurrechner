@@ -195,7 +195,7 @@ function showPunkte() {
 			let aufgabe = klausur.getAufgabe(key);
 
 			let mctext = aufgabe.getIsMC() ? " (Multiple-Choice)" : " (Textaufgabe)";
-			td = $("<td title='Aufgabe " + key + (aufgabe.getIsMC() ? " (Multiple-Choice)" : " (Textaufgabe)") + "'>");
+			td = $("<td title='Aufgabe " + key + (aufgabe.getIsMC() ? " (Multiple-Choice)" : " (Textaufgabe)") + (aufgabe.getKommentar() ? ": " + aufgabe.getKommentar() : "") + "'>");
 			tr.append(td);
 
 			let input = $("<input size='3'>");
