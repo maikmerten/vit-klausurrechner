@@ -4,7 +4,9 @@
 	<meta charset="utf-8"> 
 	<link rel="stylesheet" href="styles.css">
 	<link rel="stylesheet" href="./chartist/chartist.min.css">
+	<link rel="stylesheet" href="./jquery-ui/jquery-ui.min.css">
 	<script language="JavaScript" src="./jquery/jquery-3.1.0.min.js"></script>
+	<script language="JavaScript" src="./jquery-ui/jquery-ui.min.js"></script>
 	<script language="JavaScript" src="./chartist/chartist.min.js"></script>
 	<script language="JavaScript" src="./sjcl/sjcl.js"></script>
 	<script language="JavaScript" src="Aufgabe.js"></script>
@@ -23,7 +25,7 @@
 	<div id="status"></div>
 
 	<div id="head-right">
-		<a href="" id="savelink" download="klausur.json" onClick="save();"><button type="button">In Datei speichern</button></a>
+		<button onClick="save()">In Datei speichern</button>
 		<input type="file" id="files" name="files[]" onChange="load();"/>
 	</div>
 </div>
@@ -417,10 +419,44 @@ function status(msg) {
 
 
 function save() {
-	var string = JSON.stringify(klausur.toJSONObj());
-	var link = document.getElementById("savelink");
-	link.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(string);
-	return true;
+	$("#dialog-passwort-speichern1").dialog({
+		modal:true,
+		buttons: {
+			"Speichern": function() {
+				let pwd1 = $("#passwort-speichern1").val();
+				let pwd2 = $("#passwort-speichern2").val();
+
+				if(pwd1 != pwd2) {
+					alert("Passwörter sind unterschiedlich!");
+					return;
+				}
+				$(this).dialog( "close" );
+
+				let saveobj = klausur.toJSONObj();
+
+				if(pwd1) {
+					let encdata = sjcl.encrypt(pwd1, JSON.stringify(saveobj), { "ks":256 });
+					saveobj = {
+						"encryption" : "sjcl",
+						"encdata" : encdata
+					}
+				}
+
+				let jsonstring = JSON.stringify(saveobj);
+
+				let link = document.getElementById("savelink");
+				link.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonstring);
+				link.click();
+	
+			},
+			"Abbrechen": function() {
+				$(this).dialog( "close" );
+	        }
+		}
+	});
+
+
+	return false;
 }
 
 
@@ -434,8 +470,32 @@ function load() {
 	reader.onload = (function (theFile) {
 		return function (e) {
 			var data = JSON.parse(e.target.result);
-			klausur = new Klausur(data);
-			showKlausur();
+
+			if(data.encryption) {
+				$("#dialog-passwort-laden").dialog({
+					modal:true,
+					buttons: {
+						"Laden": function() {
+							try {
+								let decrypted = sjcl.decrypt($("#passwort-laden").val(), data.encdata);
+								$(this).dialog("close");
+
+								data = JSON.parse(decrypted);
+								klausur = new Klausur(data);
+								showKlausur();
+							} catch(e) {
+								alert("Entschlüsselung schlug fehl. Passwort korrekt?");
+							}
+						},
+						"Abbrechen": function() {
+							$(this).dialog( "close" );
+						}
+					}
+				});
+			} else {
+				klausur = new Klausur(data);
+				showKlausur();
+			}
 		};
 	})(files[0]);
 	reader.readAsText(files[0], "UTF-8");
@@ -483,6 +543,19 @@ ensureAufgabenAnzahl(1);
 
 </script>
 
+<div id="dialog-passwort-speichern1" title="Passwort" style="display:none">
+Passwort für verschlüsseltes Speichern (leerlassen für unverschlüsseltes Speichern):
+<input id="passwort-speichern1" type="password" size="25" />
+</br>
+Passwort wiederholen:
+<input id="passwort-speichern2" type="password" size="25" />
+</div>
+
+<a href="" id="savelink" download="klausur.json""></a>
+
+<div id="dialog-passwort-laden" title="Passwort für verschlüsselte Datei" style="display:none">
+<input id="passwort-laden" type="password" size="25" />
+</div>
 
 </body>
 </html>
