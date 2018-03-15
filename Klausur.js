@@ -87,15 +87,15 @@ Klausur.prototype.exportAuswertungCSV = function() {
 	}
 
 	let auswertung = this.getAuswertung();
-	let result = "Kennziffer;Rangpunkte gesamt;Rangpunkte ganzzahlig;Klausurnote;Punkte Textaufgaben;Rangpunkte Textaufg.;Punkte MC; Rangpunkte MC";
+	let result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Rangpunkte Textaufg.;Punkte MC; Rangpunkte MC";
 
 	for(let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
 		result += "\n";
 		result += kennziffer + ";";
 		result += formatNumber(eintrag.rangpunkteGesamt) + ";";
-		result += formatNumber(eintrag.rangpunkteGanzzahl) + ";";
-		result += (eintrag.noteGesamt != null ? eintrag.noteGesamt.replace("ü","ue") : "") + ";";
+		//result += formatNumber(eintrag.rangpunkteGanzzahl) + ";";
+		//result += (eintrag.noteGesamt != null ? eintrag.noteGesamt.replace("ü","ue") : "") + ";";
 		result += formatNumber(eintrag.punkteTXT) + ";";
 		result += formatNumber(eintrag.rangpunkteTXT) + ";";
 		result += formatNumber(eintrag.punkteMC) + ";";
