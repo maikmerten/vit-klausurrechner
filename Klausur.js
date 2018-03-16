@@ -86,8 +86,15 @@ Klausur.prototype.exportAuswertungCSV = function() {
 		return number.toString().replace(".",",");
 	}
 
+	let formatFixed = function(number, stellen) {
+		if(isNaN(number) || number == null) {
+			return "";
+		}
+		return number.toFixed(stellen).replace(".", ",");
+	}
+
 	let auswertung = this.getAuswertung();
-	let result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Rangpunkte Textaufg.;Punkte MC; Rangpunkte MC";
+	let result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch";
 
 	for(let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
@@ -97,9 +104,17 @@ Klausur.prototype.exportAuswertungCSV = function() {
 		//result += formatNumber(eintrag.rangpunkteGanzzahl) + ";";
 		//result += (eintrag.noteGesamt != null ? eintrag.noteGesamt.replace("ü","ue") : "") + ";";
 		result += formatNumber(eintrag.punkteTXT) + ";";
+		result += formatFixed(eintrag.prozentTXT, 3) + ";";
 		result += formatNumber(eintrag.rangpunkteTXT) + ";";
 		result += formatNumber(eintrag.punkteMC) + ";";
+		result += formatFixed(eintrag.prozentMC, 3) + ";";
 		result += formatNumber(eintrag.rangpunkteMC) + ";";
+		result += ";";
+		result += formatNumber(auswertung.erreichbarTXT) + ";";
+		result += formatNumber(auswertung.erreichbarMC) + ";";
+		result += formatFixed(auswertung.durchschnittMC, 3) + ";";
+		result += formatFixed(auswertung.festeMindestpunktzahlMC, 3) + ";";
+		result += formatFixed(auswertung.dynamischeMindestpunktzahlMC, 3) + ";";
 	}
 
 	return result;
