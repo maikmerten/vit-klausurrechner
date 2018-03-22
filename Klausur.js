@@ -96,7 +96,7 @@ Klausur.prototype.exportAuswertungCSV = function() {
 	}
 
 	let auswertung = this.getAuswertung();
-	let result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch";
+	let result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
 
 	for(let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
@@ -117,6 +117,7 @@ Klausur.prototype.exportAuswertungCSV = function() {
 		result += formatFixed(auswertung.durchschnittMC, 3) + ";";
 		result += formatFixed(auswertung.festeMindestpunktzahlMC, 3) + ";";
 		result += formatFixed(auswertung.dynamischeMindestpunktzahlMC, 3) + ";";
+		result += formatFixed(auswertung.mindestpunktzahlMC, 3) + ";";
 	}
 
 	return result;
