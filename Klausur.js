@@ -14,6 +14,7 @@ function Klausur(jsonObj) {
 
 		this.minKennziffer = jsonObj.minKennziffer;
 		this.maxKennziffer = jsonObj.maxKennziffer;
+		this.mcSchrankeFixiert = jsonObj.mcSchrankeFixiert;
 		this.kommentar = jsonObj.kommentar;
 	}
 
@@ -31,6 +32,7 @@ Klausur.prototype.toJSONObj = function() {
 		"aufgaben": aufgaben,
 		"minKennziffer": this.minKennziffer,
 		"maxKennziffer": this.maxKennziffer,
+		"mcSchrankeFixiert": this.mcSchrankeFixiert,
 		"kommentar": this.kommentar
 	}
 }
@@ -261,12 +263,36 @@ Klausur.prototype.getMCSchrankeDynamisch = function() {
 	return this.getPunkteDurchschnitt(true) * 0.78;
 }
 
+Klausur.prototype.setMCSchrankeFixiert = function(value) {
+	schranke = parseFloat(value.replace(',', '.'));
+	if(isNaN(schranke)) {
+		delete(this.mcSchrankeFixiert);
+	} else {
+		let maxPunkteMC = this.getErreichbarePunkte(true);
+		if(schranke < 0) schranke = 0;
+		if(schranke > maxPunkteMC) schranke = maxPunkteMC;
+		this.mcSchrankeFixiert = schranke;
+	}
+}
+
+Klausur.prototype.getMCSchrankeFixiert = function() {
+	if(this.mcSchrankeFixiert) {
+		let schranke = this.mcSchrankeFixiert;
+		if(!isNaN(schranke)) return this.mcSchrankeFixiert;
+	}
+	return null;
+}
+
 Klausur.prototype.getSchranke = function(mc) {
 	if(mc) {
 		// Schranke für Multiple-Choice
 		let fest = this.getMCSchrankeFest();
 		let dyn = this.getMCSchrankeDynamisch();
-		return (!isNaN(dyn) && dyn < fest) ? dyn : fest;
+		let mcSchranke = (!isNaN(dyn) && dyn < fest) ? dyn : fest;
+		if(this.getMCSchrankeFixiert()) {
+			mcSchranke = this.getMCSchrankeFixiert();
+		}
+		return mcSchranke;
 	} else {
 		// Schranke für normale Aufgaben
 		return this.getTXTSchranke();

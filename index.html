@@ -45,7 +45,7 @@ function showKlausur() {
 
 	let div = $("<div class='ui'>");
 	container.append(div);
-	div.append($("<span>Höchste Kennziffer: </span><br/>"));
+	div.append($("<span><b>Höchste Kennziffer</b></span><br/>"));
 	let inputMaxKennziffer = $("<input size='6'>");
 	div.append(inputMaxKennziffer);
 	inputMaxKennziffer.prop("value", klausur.getMaxKennziffer());
@@ -56,7 +56,7 @@ function showKlausur() {
 		input.prop("value", klausur.getMaxKennziffer());
 	});
 
-	div.append($("<br/><span>Anzahl Aufgaben: </span><br/>"));
+	div.append($("<br/><br/><span><b>Anzahl Aufgaben</b></span><br/>"));
 	let inputAufgaben = $("<input size='6'>");
 	div.append(inputAufgaben);
 	inputAufgaben.prop("value", klausur.getAnzahlAufgaben());
@@ -67,7 +67,21 @@ function showKlausur() {
 		input.prop("value", klausur.getMaxKennziffer());
 	});
 
-	div.append($("<br/><span>Kommentar: </span><br/>"));
+	div.append($("<br/><br/><span><b>Fixierte Schranke für MC</b></span><br/>"));
+	div.append($("<span>Die Punkteschranke für MC-Aufgaben wird i.d.R. automatisch berechnet. Hier nur etwas eintragen, wenn bewusst die Schranke festgelegt werden soll.</span><br/>"));
+	let inputFixierteSchranke = $("<input size = '6'>");
+	div.append(inputFixierteSchranke);
+	let schrankeFixiert = klausur.getMCSchrankeFixiert();
+	inputFixierteSchranke.prop("value", isNaN(schrankeFixiert) ? "" : schrankeFixiert);
+	inputFixierteSchranke.on("change", function() {
+		let input = $(this);
+		let value = input.prop("value");
+		klausur.setMCSchrankeFixiert(value);
+		value = klausur.getMCSchrankeFixiert();
+		input.prop("value", value ? klausur.getMCSchrankeFixiert() : "");
+	});
+
+	div.append($("<br/><br/><span><b>Kommentar</b></span><br/>"));
 	let textareaKommentar = $("<textarea cols='80' rows='3'>");
 	div.append(textareaKommentar);
 	textareaKommentar.prop("value", klausur.getKommentar());
