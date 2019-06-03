@@ -2,6 +2,7 @@ function Klausur(jsonObj) {
 	this.aufgaben = new Object();
 	this.minKennziffer = 1;
 	this.maxKennziffer = 50;
+	this.modul = "";
 	this.kommentar = "";
 
 	if(jsonObj) {
@@ -15,6 +16,7 @@ function Klausur(jsonObj) {
 		this.minKennziffer = jsonObj.minKennziffer;
 		this.maxKennziffer = jsonObj.maxKennziffer;
 		this.mcSchrankeFixiert = jsonObj.mcSchrankeFixiert;
+		this.modul = jsonObj.modul;
 		this.kommentar = jsonObj.kommentar;
 	}
 
@@ -33,6 +35,7 @@ Klausur.prototype.toJSONObj = function() {
 		"minKennziffer": this.minKennziffer,
 		"maxKennziffer": this.maxKennziffer,
 		"mcSchrankeFixiert": this.mcSchrankeFixiert,
+		"modul" : this.modul,
 		"kommentar": this.kommentar
 	}
 }
@@ -466,6 +469,14 @@ Klausur.prototype.getAuswertung = function() {
 		"eintraege" : eintraege
 	}
 	return result;
+}
+
+Klausur.prototype.getModul = function() {
+	return this.modul;
+}
+
+Klausur.prototype.setModul = function(modul) {
+	this.modul = modul;
 }
 
 Klausur.prototype.getKommentar = function() {

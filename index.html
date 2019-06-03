@@ -67,6 +67,17 @@ function showKlausur() {
 		input.prop("value", klausur.getMaxKennziffer());
 	});
 
+	div.append($("<br/><br/><span><b>Modul</b></span><br/>"));
+	let inputModul = $("<input size='6'>");
+	div.append(inputModul);
+	inputModul.prop("value", klausur.getModul());
+	inputModul.on("change", function() {
+		let input = $(this);
+		let value = input.prop("value");
+		klausur.setModul(value);
+		input.prop("value", klausur.getModul());
+	});
+
 	div.append($("<br/><br/><span><b>Fixierte Schranke für MC</b></span><br/>"));
 	div.append($("<span>Die Punkteschranke für MC-Aufgaben wird i.d.R. automatisch berechnet. Hier nur etwas eintragen, wenn bewusst die Schranke festgelegt werden soll.</span><br/>"));
 	let inputFixierteSchranke = $("<input size = '6'>");
