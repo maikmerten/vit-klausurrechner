@@ -102,7 +102,7 @@ function showKlausur() {
 
 	let tr = $("<tr>");
 	table.append(tr);
-	tr.append($("<th>Aufgabe</th><th>erreichbare Punkte</th><th>Multiple-Choice?</th><th>Kommentar</th>"));
+	tr.append($("<th>Aufgabe</th><th>erreichbare Punkte</th><th>Multiple-Choice?</th><th>Bezeichnung</th><th>Kommentar</th>"));
 
 
 	// Zeilen für die Aufgaben
@@ -148,6 +148,22 @@ function showKlausur() {
 			checkbox.val(aufgabe.getIsMC());
 		})
 		td.append(checkboxMC);
+
+
+		// Bezeichnung
+		td = $("<td>");
+		tr.append(td);
+		let inputBezeichnung = $("<input size='15'>");
+		inputBezeichnung.prop("value", aufgabe.getBezeichnung());
+		inputBezeichnung.data("aufgabe", aufgabe);
+		inputBezeichnung.on("change", function() {
+			let input = $(this);
+			let aufgabe = input.data("aufgabe");
+			let value = input.prop("value");
+			aufgabe.setBezeichnung(value);
+			input.prop("value", aufgabe.getBezeichnung());
+		})
+		td.append(inputBezeichnung);
 
 		// Kommentar
 		td = $("<td>");

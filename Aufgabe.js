@@ -2,6 +2,7 @@ function Aufgabe(jsonObj) {
 	this.isMC = false;
 	this.maxPunkte = 0;
 	this.punkte = new Object();
+	this.bezeichnung = "";
 	this.kommentar = "";
 
 	// if an object is given: copy over stuff!
@@ -9,6 +10,7 @@ function Aufgabe(jsonObj) {
 		this.isMC = jsonObj.isMC;
 		this.maxPunkte = jsonObj.maxPunkte;
 		this.punkte = jsonObj.punkte;
+		this.bezeichnung = jsonObj.bezeichnung;
 		this.kommentar = jsonObj.kommentar;
 	}
 
@@ -19,6 +21,7 @@ Aufgabe.prototype.toJSONObj = function() {
 		"isMC": this.isMC,
 		"maxPunkte": this.maxPunkte,
 		"punkte": this.punkte,
+		"bezeichnung": this.bezeichnung,
 		"kommentar": this.kommentar
 	}
 }
@@ -103,6 +106,13 @@ Aufgabe.prototype.ensureMaxKennziffer = function(maxKennziffer) {
 	}
 }
 
+Aufgabe.prototype.getBezeichnung = function() {
+	return this.bezeichnung;
+}
+
+Aufgabe.prototype.setBezeichnung = function(bezeichnung) {
+	this.bezeichnung = bezeichnung;
+}
 
 Aufgabe.prototype.getKommentar = function() {
 	return this.kommentar;
