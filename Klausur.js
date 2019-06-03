@@ -454,6 +454,22 @@ Klausur.prototype.getAuswertung = function() {
 		eintrag.rangpunkteGesamt = this.getRangpunkteGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
 		eintrag.rangpunkteGanzzahl = this.getRangpunkteGanzzahl(eintrag.rangpunkteGesamt);
 		eintrag.noteGesamt = this.getNote(eintrag.rangpunkteGanzzahl);
+
+		// stelle Informationen zu den einzelnen Aufgaben zusammen
+		let aufgaben = new Array();
+		let aufgabenKeys = this.getAufgabenKeys();
+		for(let j = 0; j < aufgabenKeys.length; ++j) {
+			let key = aufgabenKeys[j];
+			let aufgabe = klausur.getAufgabe(key);
+			let aufgabeninfo = new Object();
+			aufgabeninfo.bezeichnung = aufgabe.getBezeichnung();
+			aufgabeninfo.typ = aufgabe.getIsMC() ? "MC" : "Text";
+			aufgabeninfo.maxPunkte = aufgabe.getMaxPunkte();
+			aufgabeninfo.punkte = aufgabe.getPunkte(i);
+			aufgaben.push(aufgabeninfo);
+		}
+		eintrag.aufgaben = aufgaben;
+
 		eintraege[i] = eintrag;
 	}
 
