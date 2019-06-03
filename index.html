@@ -570,7 +570,7 @@ function importPunkteCSV() {
 
 
 function exportAuswertungCSV() {
-	var string = klausur.exportAuswertungCSV();
+	var string = klausur.exportAuswertungCSV2();
 	var link = document.getElementById("exportAuswertungCSV");
 	
 	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
