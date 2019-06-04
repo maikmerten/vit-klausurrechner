@@ -83,7 +83,7 @@ Klausur.prototype.importPunkteCSV = function(csvstring) {
 	}
 }
 
-Klausur.prototype.exportAuswertungCSV = function() {
+Klausur.prototype.exportAuswertungOrgaCSV = function() {
 	let formatNumber = function(number) {
 		if(isNaN(number) || number == null) {
 			return "";
@@ -126,7 +126,7 @@ Klausur.prototype.exportAuswertungCSV = function() {
 	return result;
 }
 
-Klausur.prototype.exportAuswertungCSV2 = function() {
+Klausur.prototype.exportAuswertungBeiblattCSV = function() {
 	let formatNumber = function(number) {
 		if(isNaN(number) || number == null) {
 			return "";

@@ -297,9 +297,11 @@ function showAuswertung() {
 	let container = $("#container");
 	container.empty();
 
-	let exportcsv = $("<a href='' id='exportAuswertungCSV' download='auswertung.csv' onClick='exportAuswertungCSV();'><button type='button'>Auswertung exportieren</button></a><br/><br/>");
+	let exportcsv = $("<a href='' id='exportAuswertungOrgaCSV' download='auswertung-orga.csv' onClick='exportAuswertungOrgaCSV();'><button type='button'>Auswertung für Orga exportieren</button></a><br/><br/>");
 	container.append(exportcsv);
 
+	let exportcsv2 = $("<a href='' id='exportAuswertungBeiblattCSV' download='auswertung-beiblatt.csv' onClick='exportAuswertungBeiblattCSV();'><button type='button'>Auswertung für Beiblätter exportieren</button></a><br/><br/>");
+	container.append(exportcsv2);
 
 	let auswertung = klausur.getAuswertung();
 
@@ -568,10 +570,18 @@ function importPunkteCSV() {
 
 }
 
+function exportAuswertungOrgaCSV() {
+	var string = klausur.exportAuswertungOrgaCSV();
+	var link = document.getElementById("exportAuswertungOrgaCSV");
+	
+	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
+	return true;
+}
 
-function exportAuswertungCSV() {
-	var string = klausur.exportAuswertungCSV2();
-	var link = document.getElementById("exportAuswertungCSV");
+
+function exportAuswertungBeiblattCSV() {
+	var string = klausur.exportAuswertungBeiblattCSV();
+	var link = document.getElementById("exportAuswertungBeiblattCSV");
 	
 	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
 	return true;
