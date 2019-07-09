@@ -264,7 +264,8 @@ function showPunkte() {
 				let kennziffer = input.data("kennziffer");
 				let aufgabe = input.data("aufgabe");
 				let key = input.data("aufgabeKey");
-				status("Kennziffer " + kennziffer + ", Aufgabe " + key + (aufgabe.getIsMC() ? " (Multiple-Choice)" : " (Textaufgabe)"));
+				let bezeichnung = aufgabe.getBezeichnung() ? " (" + aufgabe.getBezeichnung() + ") " : "";
+				status("Kennziffer " + kennziffer + ", Aufgabe " + key + bezeichnung + (aufgabe.getIsMC() ? " (Multiple-Choice)" : " (Textaufgabe)"));
 			});
 
 			input.on("blur", function() {
