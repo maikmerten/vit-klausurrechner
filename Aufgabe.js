@@ -55,12 +55,10 @@ Aufgabe.prototype.setPunkte = function(teilnehmer, punkteNeu) {
 	punkteNeu = parseFloat(punkteNeu.replace(',', '.'));
 
 	
-	if(isNaN(punkteNeu)) {
+	if(isNaN(punkteNeu) || punkteNeu < 0 || punkteNeu > this.getMaxPunkte()) {
 		console.log("entferne Punkte für Kennziffer " + teilnehmer);
 		delete this.punkte[teilnehmer];
 	} else {
-		punkteNeu = punkteNeu < 0 ? 0 : punkteNeu;
-		punkteNeu = punkteNeu > this.getMaxPunkte() ? this.getMaxPunkte() : punkteNeu; 
 		this.punkte[teilnehmer] = punkteNeu;
 	}
 }
