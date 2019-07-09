@@ -67,6 +67,17 @@ function showKlausur() {
 		input.prop("value", klausur.getMaxKennziffer());
 	});
 
+	div.append($("<br/><br/><span><b>Modul</b></span><br/>"));
+	let inputModul = $("<input size='6'>");
+	div.append(inputModul);
+	inputModul.prop("value", klausur.getModul());
+	inputModul.on("change", function() {
+		let input = $(this);
+		let value = input.prop("value");
+		klausur.setModul(value);
+		input.prop("value", klausur.getModul());
+	});
+
 	div.append($("<br/><br/><span><b>Fixierte Schranke für MC</b></span><br/>"));
 	div.append($("<span>Die Punkteschranke für MC-Aufgaben wird i.d.R. automatisch berechnet. Hier nur etwas eintragen, wenn bewusst die Schranke festgelegt werden soll.</span><br/>"));
 	let inputFixierteSchranke = $("<input size = '6'>");
@@ -102,7 +113,7 @@ function showKlausur() {
 
 	let tr = $("<tr>");
 	table.append(tr);
-	tr.append($("<th>Aufgabe</th><th>erreichbare Punkte</th><th>Multiple-Choice?</th><th>Kommentar</th>"));
+	tr.append($("<th>Aufgabe</th><th>erreichbare Punkte</th><th>Multiple-Choice?</th><th>Bezeichnung</th><th>Kommentar</th>"));
 
 
 	// Zeilen für die Aufgaben
@@ -148,6 +159,22 @@ function showKlausur() {
 			checkbox.val(aufgabe.getIsMC());
 		})
 		td.append(checkboxMC);
+
+
+		// Bezeichnung
+		td = $("<td>");
+		tr.append(td);
+		let inputBezeichnung = $("<input size='15'>");
+		inputBezeichnung.prop("value", aufgabe.getBezeichnung());
+		inputBezeichnung.data("aufgabe", aufgabe);
+		inputBezeichnung.on("change", function() {
+			let input = $(this);
+			let aufgabe = input.data("aufgabe");
+			let value = input.prop("value");
+			aufgabe.setBezeichnung(value);
+			input.prop("value", aufgabe.getBezeichnung());
+		})
+		td.append(inputBezeichnung);
 
 		// Kommentar
 		td = $("<td>");
@@ -270,9 +297,11 @@ function showAuswertung() {
 	let container = $("#container");
 	container.empty();
 
-	let exportcsv = $("<a href='' id='exportAuswertungCSV' download='auswertung.csv' onClick='exportAuswertungCSV();'><button type='button'>Auswertung exportieren</button></a><br/><br/>");
+	let exportcsv = $("<a href='' id='exportAuswertungOrgaCSV' download='auswertung-orga.csv' onClick='exportAuswertungOrgaCSV();'><button type='button'>Auswertung für Orga exportieren</button></a><br/><br/>");
 	container.append(exportcsv);
 
+	let exportcsv2 = $("<a href='' id='exportAuswertungBeiblattCSV' download='auswertung-beiblatt.csv' onClick='exportAuswertungBeiblattCSV();'><button type='button'>Auswertung für Beiblätter exportieren</button></a><br/><br/>");
+	container.append(exportcsv2);
 
 	let auswertung = klausur.getAuswertung();
 
@@ -541,10 +570,18 @@ function importPunkteCSV() {
 
 }
 
+function exportAuswertungOrgaCSV() {
+	var string = klausur.exportAuswertungOrgaCSV();
+	var link = document.getElementById("exportAuswertungOrgaCSV");
+	
+	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
+	return true;
+}
 
-function exportAuswertungCSV() {
-	var string = klausur.exportAuswertungCSV();
-	var link = document.getElementById("exportAuswertungCSV");
+
+function exportAuswertungBeiblattCSV() {
+	var string = klausur.exportAuswertungBeiblattCSV();
+	var link = document.getElementById("exportAuswertungBeiblattCSV");
 	
 	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
 	return true;

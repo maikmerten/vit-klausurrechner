@@ -2,6 +2,7 @@ function Klausur(jsonObj) {
 	this.aufgaben = new Object();
 	this.minKennziffer = 1;
 	this.maxKennziffer = 50;
+	this.modul = "";
 	this.kommentar = "";
 
 	if(jsonObj) {
@@ -15,6 +16,7 @@ function Klausur(jsonObj) {
 		this.minKennziffer = jsonObj.minKennziffer;
 		this.maxKennziffer = jsonObj.maxKennziffer;
 		this.mcSchrankeFixiert = jsonObj.mcSchrankeFixiert;
+		this.modul = jsonObj.modul;
 		this.kommentar = jsonObj.kommentar;
 	}
 
@@ -33,6 +35,7 @@ Klausur.prototype.toJSONObj = function() {
 		"minKennziffer": this.minKennziffer,
 		"maxKennziffer": this.maxKennziffer,
 		"mcSchrankeFixiert": this.mcSchrankeFixiert,
+		"modul" : this.modul,
 		"kommentar": this.kommentar
 	}
 }
@@ -80,7 +83,7 @@ Klausur.prototype.importPunkteCSV = function(csvstring) {
 	}
 }
 
-Klausur.prototype.exportAuswertungCSV = function() {
+Klausur.prototype.exportAuswertungOrgaCSV = function() {
 	let formatNumber = function(number) {
 		if(isNaN(number) || number == null) {
 			return "";
@@ -123,6 +126,58 @@ Klausur.prototype.exportAuswertungCSV = function() {
 	return result;
 }
 
+Klausur.prototype.exportAuswertungBeiblattCSV = function() {
+	let formatNumber = function(number) {
+		if(isNaN(number) || number == null) {
+			return "";
+		}
+		return number.toString().replace(".",",");
+	}
+
+	let formatFixed = function(number, stellen) {
+		if(isNaN(number) || number == null) {
+			return "";
+		}
+		return number.toFixed(stellen).replace(".", ",");
+	}
+
+	let erreichbar = this.getErreichbarePunkte(true) + this.getErreichbarePunkte(false);
+	let prozentPunkteMC = (this.getErreichbarePunkte(true) / erreichbar) * 100;
+	let prozentPunkteTXT = 100 - prozentPunkteMC;
+
+	let auswertung = this.getAuswertung();
+	let result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Rangpunkte-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Rangpunkte-mc;angewendete_Grenze_MC;Klausuranteil_MC;Rangpunkte_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
+
+	for(let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
+		let eintrag = auswertung.eintraege[kennziffer];
+		let aufgaben = eintrag.aufgaben;
+		for(let i = 0; i < aufgaben.length; ++i) {
+			let aufgabe = aufgaben[i];
+			result += "\n";
+			result += (this.getModul() + "").replace(/;/g, ",") + ";";
+			result += kennziffer + ";";
+			result += formatNumber(auswertung.erreichbarTXT) + ";";
+			result += formatNumber(eintrag.punkteTXT) + ";";
+			result += formatFixed(eintrag.prozentTXT, 3) + ";";
+			result += formatNumber(eintrag.rangpunkteTXT) + ";";
+			result += formatNumber(prozentPunkteTXT) + ";";
+			result += formatNumber(auswertung.erreichbarMC) + ";";
+			result += formatNumber(eintrag.punkteMC) + ";";
+			result += formatFixed(eintrag.prozentMC, 3) + ";";
+			result += formatNumber(eintrag.rangpunkteMC) + ";";
+			result += formatFixed(auswertung.mindestpunktzahlMC, 3) + ";";
+			result += formatNumber(prozentPunkteMC) + ";";
+			result += formatNumber(eintrag.rangpunkteGesamt) + ";";
+			result += (aufgabe.bezeichnung + "").replace(/;/g, ",") + ";";
+			result += aufgabe.typ + ";";
+			result += formatNumber(aufgabe.maxPunkte) + ";";
+			result += formatNumber(aufgabe.punkte) + ";";
+			result += ((i == aufgaben.length - 1) ? 1 : 0) + ";";
+		}
+	}
+
+	return result;
+}
 
 Klausur.prototype.getAnzahlAufgaben = function() {
 	return Object.keys(this.aufgaben).length;
@@ -451,6 +506,22 @@ Klausur.prototype.getAuswertung = function() {
 		eintrag.rangpunkteGesamt = this.getRangpunkteGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
 		eintrag.rangpunkteGanzzahl = this.getRangpunkteGanzzahl(eintrag.rangpunkteGesamt);
 		eintrag.noteGesamt = this.getNote(eintrag.rangpunkteGanzzahl);
+
+		// stelle Informationen zu den einzelnen Aufgaben zusammen
+		let aufgaben = new Array();
+		let aufgabenKeys = this.getAufgabenKeys();
+		for(let j = 0; j < aufgabenKeys.length; ++j) {
+			let key = aufgabenKeys[j];
+			let aufgabe = klausur.getAufgabe(key);
+			let aufgabeninfo = new Object();
+			aufgabeninfo.bezeichnung = aufgabe.getBezeichnung();
+			aufgabeninfo.typ = aufgabe.getIsMC() ? "MC" : "Text";
+			aufgabeninfo.maxPunkte = aufgabe.getMaxPunkte();
+			aufgabeninfo.punkte = aufgabe.getPunkte(i);
+			aufgaben.push(aufgabeninfo);
+		}
+		eintrag.aufgaben = aufgaben;
+
 		eintraege[i] = eintrag;
 	}
 
@@ -466,6 +537,14 @@ Klausur.prototype.getAuswertung = function() {
 		"eintraege" : eintraege
 	}
 	return result;
+}
+
+Klausur.prototype.getModul = function() {
+	return this.modul;
+}
+
+Klausur.prototype.setModul = function(modul) {
+	this.modul = modul;
 }
 
 Klausur.prototype.getKommentar = function() {
