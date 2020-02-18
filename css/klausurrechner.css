@@ -1,0 +1,47 @@
+/*
+ * User Styles für den Klausurrechner
+ *
+ */
+ 
+/* Neuer Style für aktive Nav-items */
+.navbar-custom .nav-item.active .nav-link,
+.navbar-custom .nav-item:hover .nav-link {
+	color: #000000;
+	background-color: #ffffff;
+}
+
+/*
+ * https://www.strangeplanet.fr/work/gradient-generator/?c=9:FF0000:FFFF22:009900
+ */
+.rp0{background-color:  #FF0000;}
+.rp1{background-color:  #FF1F04;}
+.rp2{background-color:  #FF3F08;}
+.rp3{background-color:  #FF5F0C;}
+.rp4{background-color:  #FF7F11;}
+.rp5{background-color:  #FF9F15;}
+.rp6{background-color:  #FFBF19;}
+.rp7{background-color:  #FFDF1D;}
+.rp8{background-color:  #FFFF22;}
+.rp9{background-color:  #DAF01D;}
+.rp10{background-color: #B6E118;}
+.rp11{background-color: #91D313;}
+.rp12{background-color: #6DC40E;}
+.rp13{background-color: #48B609;}
+.rp14{background-color: #24A704;}
+.rp15{background-color: #009900;}
+
+
+/*
+ * https://www.strangeplanet.fr/work/gradient-generator/?c=9:FF0000:FFFF22:009900
+ */
+.p0{background-color:  #FF0000;}
+.p1{background-color:  #FF3306;}
+.p2{background-color:  #FF660D;}
+.p3{background-color:  #FF9914;}
+.p4{background-color:  #FFCC1B;}
+.p5{background-color:  #FFFF22;}
+.p6{background-color:  #CCEA1B;}
+.p7{background-color:  #99D614;}
+.p8{background-color:  #66C10D;}
+.p9{background-color:  #32AD06;}
+.p10{background-color: #009900;}

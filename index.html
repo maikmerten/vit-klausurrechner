@@ -1,613 +1,89 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="de">
+
 <head>
-	<meta charset="utf-8"> 
-	<link rel="stylesheet" href="styles.css">
-	<link rel="stylesheet" href="./chartist/chartist.min.css">
-	<link rel="stylesheet" href="./jquery-ui/jquery-ui.min.css">
-	<script language="JavaScript" src="./jquery/jquery-3.1.0.min.js"></script>
-	<script language="JavaScript" src="./jquery-ui/jquery-ui.min.js"></script>
-	<script language="JavaScript" src="./chartist/chartist.min.js"></script>
-	<script language="JavaScript" src="./sjcl/sjcl.js"></script>
-	<script language="JavaScript" src="Aufgabe.js"></script>
-	<script language="JavaScript" src="Klausur.js"></script>
-	<title>Klausurrechner</title>
+	<title>VIT-Klausurrechner</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="./css/bootstrap.min.css">
+	<link rel="stylesheet" href="./css/klausurrechner.css">
+
+	<!-- Klasurrechner -->
+	<script language="JavaScript" src="./js/klausurrechner.js"></script>
+	<script language="JavaScript" src="./js/aufgabe.js"></script>
+	<script language="JavaScript" src="./js/klausur.js"></script>
+	<!-- JQUERY -->
+	<link rel="stylesheet" href="./libs/jquery-ui/jquery-ui.min.css" />
+	<script language="JavaScript" src="./libs/jquery/jquery-3.1.0.min.js"></script>
+	<script language="JavaScript" src="./libs/jquery-ui/jquery-ui.min.js"></script>
+	<!-- SJCL ### Verschlüsselung der JSON-Datei beim Laden/Speichern -->
+	<script language="JavaScript" src="./libs/sjcl/sjcl.js"></script>
+	<!-- Plotly.js ### Diagramme im Tab Statistik -->
+	<script language="JavaScript" src="./libs/plotly.js/plotly-latest.min.js"></script>
+
 </head>
 
-<body>
+<body style="padding-top: 65px">
+	<!-- NAVIGATION -->
+	<div class="container" id="nav">
+		<nav class="navbar navbar-custom navbar-dark bg-primary navbar-expand-lg fixed-top">
+			<!-- Logo -->
+			<a class="navbar-brand" href="#">VIT-Klausurrechner</a>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<!-- Funktionsbuttions -->
+				<ul class="navbar-nav mr-auto" id="tabs">
+					<li class="nav-item " id="bKlausur">
+						<a class="nav-link" href="#">Klausur</a>
+					</li>
+					<li class="nav-item" id="bPunkte">
+						<a class="nav-link" href="#">Punkte</a>
+					</li>
+					<li class="nav-item" id="bAuswertung">
+						<a class="nav-link" href="#">Auswertung</a>
+					</li>
+					<li class="nav-item" id="bStatistiken">
+						<a class="nav-link" href="#">Statistiken</a>
+					</li>
+				</ul>
+				<!-- Statusinfo-->
+				<ul class="navbar-nav">
+					<span class="navbar-text bg-light text-dark font-weight-bold px-2" id="status"
+						style="visibility:hidden"></span>
+				</ul>
+				<!-- Laden- und Speichern-Buttons -->
+				<div class="navbar-nav ml-auto" id="loadsave">
+				</div>
 
-<div id="head" class="ui noprint">
-	<button onClick="showKlausur()">Klausur</button>
-	<button onClick="showPunkte()">Punkte</button>
-	<button onClick="showAuswertung()">Auswertung</button>
-	<button onClick="showStatistics()">Statistiken</button>
-
-	<div id="status"></div>
-
-	<div id="head-right">
-		<button onClick="save()">In Datei speichern</button>
-		<input type="file" id="files" name="files[]" onChange="load();"/>
+			</div>
+		</nav>
 	</div>
-</div>
 
-<table id="tabelle"></table>
-
-<div id="container"></div>
-
-
-<script language="JavaScript">
-
-
-function showKlausur() {
-	let container = $("#container");
-	container.empty();
-
-
-	let div = $("<div class='ui'>");
-	container.append(div);
-	div.append($("<span><b>Höchste Kennziffer</b></span><br/>"));
-	let inputMaxKennziffer = $("<input size='6'>");
-	div.append(inputMaxKennziffer);
-	inputMaxKennziffer.prop("value", klausur.getMaxKennziffer());
-	inputMaxKennziffer.on("change", function() {
-		let input = $(this);
-		let value = input.prop("value");
-		klausur.setMaxKennziffer(value);
-		input.prop("value", klausur.getMaxKennziffer());
-	});
-
-	div.append($("<br/><br/><span><b>Anzahl Aufgaben</b></span><br/>"));
-	let inputAufgaben = $("<input size='6'>");
-	div.append(inputAufgaben);
-	inputAufgaben.prop("value", klausur.getAnzahlAufgaben());
-	inputAufgaben.on("change", function() {
-		let input = $(this);
-		let value = input.prop("value");
-		ensureAufgabenAnzahl(value);
-		input.prop("value", klausur.getMaxKennziffer());
-	});
-
-	div.append($("<br/><br/><span><b>Modul</b></span><br/>"));
-	let inputModul = $("<input size='6'>");
-	div.append(inputModul);
-	inputModul.prop("value", klausur.getModul());
-	inputModul.on("change", function() {
-		let input = $(this);
-		let value = input.prop("value");
-		klausur.setModul(value);
-		input.prop("value", klausur.getModul());
-	});
-
-	div.append($("<br/><br/><span><b>Fixierte Schranke für MC</b></span><br/>"));
-	div.append($("<span>Die Punkteschranke für MC-Aufgaben wird i.d.R. automatisch berechnet. Hier nur etwas eintragen, wenn bewusst die Schranke festgelegt werden soll.</span><br/>"));
-	let inputFixierteSchranke = $("<input size = '6'>");
-	div.append(inputFixierteSchranke);
-	let schrankeFixiert = klausur.getMCSchrankeFixiert();
-	inputFixierteSchranke.prop("value", isNaN(schrankeFixiert) ? "" : schrankeFixiert);
-	inputFixierteSchranke.on("change", function() {
-		let input = $(this);
-		let value = input.prop("value");
-		klausur.setMCSchrankeFixiert(value);
-		value = klausur.getMCSchrankeFixiert();
-		input.prop("value", value ? klausur.getMCSchrankeFixiert() : "");
-	});
-
-	div.append($("<br/><br/><span><b>Kommentar</b></span><br/>"));
-	let textareaKommentar = $("<textarea cols='80' rows='3'>");
-	div.append(textareaKommentar);
-	textareaKommentar.prop("value", klausur.getKommentar());
-	textareaKommentar.on("change", function() {
-		let textarea = $(this);
-		let value = textarea.prop("value");
-		klausur.setKommentar(value);
-		textarea.prop("value", klausur.getKommentar());
-	});
-
-
-	container.append($("<br/>"));
-
-
-	// Tabelle für Aufgaben
-	let table = $("<table>");
-	container.append(table);
-
-	let tr = $("<tr>");
-	table.append(tr);
-	tr.append($("<th>Aufgabe</th><th>erreichbare Punkte</th><th>Multiple-Choice?</th><th>Bezeichnung</th><th>Kommentar</th>"));
-
-
-	// Zeilen für die Aufgaben
-	let aufgabenKeys = klausur.getAufgabenKeys();
-	for(let i = 0; i < aufgabenKeys.length; ++i) {
-		let key = aufgabenKeys[i];
-		let aufgabe = klausur.getAufgabe(key);
-
-		tr = $("<tr>");
-		table.append(tr);
-
-		let td = $("<td>");
-		td.append($("<span>" + key + "</span>"));
-		tr.append(td);
-
-		// erreichbare Punkte
-		td = $("<td>");
-		tr.append(td);
-		let inputPunkte = $("<input size='4'>");
-		inputPunkte.prop("value", aufgabe.getMaxPunkte());
-		inputPunkte.data("aufgabe", aufgabe);
-		inputPunkte.on("change", function() {
-			let input = $(this);
-			let aufgabe = input.data("aufgabe");
-			let value = input.val();
-			aufgabe.setMaxPunkte(value);
-			input.val(aufgabe.getMaxPunkte());
-		});
-		td.append(inputPunkte);
-
-
-		// multiple-choice?
-		td = $("<td>");
-		tr.append(td);
-		let checkboxMC = $("<input type='checkbox'>");
-		checkboxMC.prop("checked", aufgabe.getIsMC());
-		checkboxMC.data("aufgabe", aufgabe);
-		checkboxMC.on("change", function() {
-			let checkbox = $(this);
-			let aufgabe = checkbox.data("aufgabe");
-			let value = checkbox.prop("checked");
-			aufgabe.setIsMC(value);
-			checkbox.val(aufgabe.getIsMC());
-		})
-		td.append(checkboxMC);
-
-
-		// Bezeichnung
-		td = $("<td>");
-		tr.append(td);
-		let inputBezeichnung = $("<input size='15'>");
-		inputBezeichnung.prop("value", aufgabe.getBezeichnung());
-		inputBezeichnung.data("aufgabe", aufgabe);
-		inputBezeichnung.on("change", function() {
-			let input = $(this);
-			let aufgabe = input.data("aufgabe");
-			let value = input.prop("value");
-			aufgabe.setBezeichnung(value);
-			input.prop("value", aufgabe.getBezeichnung());
-		})
-		td.append(inputBezeichnung);
-
-		// Kommentar
-		td = $("<td>");
-		tr.append(td);
-		let inputKommentar = $("<input size='15'>");
-		inputKommentar.prop("value", aufgabe.getKommentar());
-		inputKommentar.data("aufgabe", aufgabe);
-		inputKommentar.on("change", function() {
-			let input = $(this);
-			let aufgabe = input.data("aufgabe");
-			let value = input.prop("value");
-			aufgabe.setKommentar(value);
-			input.prop("value", aufgabe.getKommentar());
-		})
-		td.append(inputKommentar);
-
-
-	}
-
-
-}
-
-function showPunkte() {
-	let container = $("#container");
-	container.empty();
-
-
-	let exportcsv = $("<a href='' id='exportPunkteCSV' download='punkte.csv' onClick='exportPunkteCSV();'><button type='button'>Punkte exportieren</button></a>");
-	container.append(exportcsv);
-
-	let importcsv = $("<input type='file' id='importPunkteCSV' name='importPunkteCSV[]' onChange='importPunkteCSV();'/><br/><br/>");
-	container.append(importcsv);
-
-	let table = $("<table>");
-	container.append(table);
-
-
-	let tr_head = $("<tr>");
-	table.append(tr_head);
-	tr_head.append($("<th><span>Kennz.</span></th>"));
-
-
-	// Tabellenkopf mit Aufgabennummern
-	let aufgabenKeys = klausur.getAufgabenKeys();
-	for(let i = 0; i < aufgabenKeys.length; ++i) {
-		let key = aufgabenKeys[i];
-		let aufgabe = klausur.getAufgabe(key);
-		let td = $("<th>");
-		td.append($("<span style='white-space:nowrap;'>A." + key + "</span>"));
-		tr_head.append(td);
-	}
-
-	// Zeilen für die Teilnehmer
-	for(let kennziffer = klausur.getMinKennziffer(); kennziffer <= klausur.getMaxKennziffer(); ++kennziffer) {
-		let tr = $("<tr>");
-		table.append(tr);
-		let td = $("<td title='Kennziffer'>" + kennziffer +"</td>");
-		tr.append(td);
-
-		for(let i = 0; i < aufgabenKeys.length; ++i) {
-			let key = aufgabenKeys[i];
-			let aufgabe = klausur.getAufgabe(key);
-
-			let mctext = aufgabe.getIsMC() ? " (Multiple-Choice)" : " (Textaufgabe)";
-			td = $("<td title='Aufgabe " + key + (aufgabe.getIsMC() ? " (Multiple-Choice)" : " (Textaufgabe)") + (aufgabe.getKommentar() ? ": " + aufgabe.getKommentar() : "") + "'>");
-			tr.append(td);
-
-			let input = $("<input size='3'>");
-			td.append(input);
-			let punkte = aufgabe.getPunkte(kennziffer);
-			input.prop("value", punkte == null ? "" : punkte);
-			input.data("kennziffer", kennziffer);
-			input.data("aufgabe", aufgabe);
-			input.data("aufgabeKey", key);
-			input.on("change", function() {
-				let input = $(this);
-				let kennziffer = input.data("kennziffer");
-				let aufgabe = input.data("aufgabe");
-				let punkte = input.prop("value");
-				aufgabe.setPunkte(kennziffer, punkte);
-				punkte = aufgabe.getPunkte(kennziffer);
-				input.val(punkte == null ? "" : punkte);
-			});
-
-			input.on("focus", function() {
-				let input = $(this);
-				let kennziffer = input.data("kennziffer");
-				let aufgabe = input.data("aufgabe");
-				let key = input.data("aufgabeKey");
-				let bezeichnung = aufgabe.getBezeichnung() ? " (" + aufgabe.getBezeichnung() + ") " : "";
-				status("Kennziffer " + kennziffer + ", Aufgabe " + key + bezeichnung + (aufgabe.getIsMC() ? " (Multiple-Choice)" : " (Textaufgabe)"));
-			});
-
-			input.on("blur", function() {
-				status("");
-			});
-
-		}
-
-	}
-
-}
-
-
-function showAuswertung() {
-	let kopf = function(wert) {
-		return $("<th>" + wert + "</th>");
-	}
-
-	let zelle = function(wert, clazz, title) {
-		wert = isNaN(wert) ? "" : wert;
-		return $("<td class='" + clazz +"' title='" + title + "'>" + wert + "</td>");
-	}
-
-	let rpKlasse = function(rangpunkte) {
-		if(isNaN(rangpunkte)) return "";
-		if(rangpunkte < 5) return "bad";
-		return "good";
-	}
-
-	let container = $("#container");
-	container.empty();
-
-	let exportcsv = $("<a href='' id='exportAuswertungOrgaCSV' download='auswertung-orga.csv' onClick='exportAuswertungOrgaCSV();'><button type='button'>Auswertung für Orga exportieren</button></a><br/><br/>");
-	container.append(exportcsv);
-
-	let exportcsv2 = $("<a href='' id='exportAuswertungBeiblattCSV' download='auswertung-beiblatt.csv' onClick='exportAuswertungBeiblattCSV();'><button type='button'>Auswertung für Beiblätter exportieren</button></a><br/><br/>");
-	container.append(exportcsv2);
-
-	let auswertung = klausur.getAuswertung();
-
-	// Tabelle mit Kerndaten
-	let table = $("<table>");
-	container.append(table);
-	let tr = $("<tr>");
-	table.append(tr);
-	tr.append(kopf("max. Punkte Textteil"));
-	tr.append(kopf("max. Punkte MC"));
-	tr.append(kopf("⌀ Punkte MC"));
-	tr.append(kopf("MC Schranke fest"));
-	tr.append(kopf("MC Schranke dynamisch"));
-	tr.append(kopf("MC Schranke angewendet"));
-	tr = $("<tr>");
-	table.append(tr);
-	tr.append(zelle(auswertung.erreichbarTXT, "", "erreichbare Punkte bei Textaufgaben"));
-	tr.append(zelle(auswertung.erreichbarMC, "", "erreichbare Punkte bei Multiple-Choice-Aufgaben"));
-	tr.append(zelle(auswertung.durchschnittMC.toFixed(3), "", "durchschnittlich erreichte Punkte bei Multiple-Choice-Aufgaben"));
-	tr.append(zelle(auswertung.festeMindestpunktzahlMC.toFixed(3), "", "feste Mindestpunktzahl bei Multiple-Choice-Aufgaben"));
-	tr.append(zelle(auswertung.dynamischeMindestpunktzahlMC.toFixed(3), "", "dynamische Mindestpunktzahl bei Multiple-Choice-Aufgaben"));
-	tr.append(zelle(auswertung.mindestpunktzahlMC.toFixed(3), "", "angewendete Mindestpunktzahl bei Multiple-Choice-Aufgaben"));
-
-	container.append($("<br/>"));							
-
-	// Tabelle mit Einzelergebnissen
-	table = $("<table>");
-	container.append(table);
-	tr = $("<tr>");
-	table.append(tr);
-	tr.append(kopf("Kennz."));
-	tr.append(kopf("Rangp. Gesamt"));
-	//tr.append(kopf("Rangp. Ganzzahl"));
-	//tr.append(kopf("Klausurnote"));
-	tr.append(kopf("Pkt. Textaufg."));
-	tr.append(kopf("% Textaufg."));
-	tr.append(kopf("Rangp. Textaufg."));
-	tr.append(kopf("Pkt. MC"));
-	tr.append(kopf("% MC"));
-	tr.append(kopf("Rangp. MC"));
-
-
-	for(let kennziffer = auswertung.minKennziffer; kennziffer <= auswertung.maxKennziffer; ++kennziffer) {
-		let eintrag = auswertung.eintraege[kennziffer];
-		tr = $("<tr>");
-		table.append(tr);
-		tr.append(zelle(kennziffer, "", "Kennziffer"));
-		tr.append(zelle(eintrag.rangpunkteGesamt, rpKlasse(eintrag.rangpunkteGesamt), "Rangpunkte gesamt"));
-		//tr.append(zelle(eintrag.rangpunkteGanzzahl, rpKlasse(eintrag.rangpunkteGanzzahl), "Rangpunkte ganzzahlig"));
-		//tr.append($("<td title='Klausurnote'>" + eintrag.noteGesamt + "</td>", "", "Klausurnote"));
-		tr.append(zelle(eintrag.punkteTXT, "", "Punkte Textaufgaben"));
-		tr.append(zelle(eintrag.prozentTXT.toFixed(3), "", "Prozent Textaufgaben"));
-		tr.append(zelle(eintrag.rangpunkteTXT, rpKlasse(eintrag.rangpunkteTXT), "Rangpunkte Textaufgaben"));
-		tr.append(zelle(eintrag.punkteMC, "", "Punkte Multiple-Choice"));
-		tr.append(zelle(eintrag.prozentMC.toFixed(3), "", "Prozent Multiple-Choice"));
-		tr.append(zelle(eintrag.rangpunkteMC, rpKlasse(eintrag.rangpunkteMC), "Rangpunkte Multiple-Choice"));
-	}
-}
-
-function showStatistics() {
-	// Bling Bling
-	// - Gauge-Chart mit Notenverteilung "sehr gut" - "ungenügend"
-	// - Bar-Chart mit durchschnittlich erreichten Punkten (%) pro Aufgabe
-	let container = $("#container");
-	container.empty();
-
-	// Histogramm für Rangpunkte
-	let auswertung = klausur.getAuswertung();
-	let ray = new Array();
-	for(let i = 0; i <= 15; ++i) ray[i] = 0;
-
-	let keys = Object.keys(auswertung.eintraege);
-	for(let i = 0; i < keys.length; ++i) {
-		let eintrag = auswertung.eintraege[keys[i]];
-		let rp = eintrag.rangpunkteGanzzahl | 0;
-		ray[15 - rp]++;
-	}
-
-	container.append("<h2>Verteilung der Rangpunkte</h2>");
-	let div = new $("<div class='chart-rangpunkte chart'></div>");
-	container.append(div);
-	new Chartist.Bar('.chart-rangpunkte', {
-		labels: ["15","14","13","12","11","10","9","8","7","6","5","4","3","2","1","0"],
-		series: [ray]
-	});
-
-
-	// Verteilung der Noten
-	ray = new Array();
-	let labels = ["sehr gut", "gut", "befriedigend", "ausreichend", "mangelhaft", "ungenügend"];
-	let summe = 0;
-	for(let i = 0; i < labels.length; ++i) ray[i] = 0;
-	keys = Object.keys(auswertung.eintraege)
-	for(let i = 0; i < keys.length; ++i) {
-		let note = auswertung.eintraege[keys[i]].noteGesamt;
-		if(labels.indexOf(note) >= 0) {
-			ray[labels.indexOf(note)]++;
-			summe++;
-		}
-	}
-
-	container.append("<h2>Verteilung der Noten</h2>");
-	div = new $("<div class='chart-notenverteilung chart'></div>");
-	container.append(div);
-	new Chartist.Bar('.chart-notenverteilung', {
-		labels: labels,
-		series: [ray]
-	});
-
-
-	// durchschnittlich erreichte Punkte pro Aufgabe
-	keys = klausur.getAufgabenKeys();
-	ray = new Array();
-	labels = new Array();
-	for(let i = 0; i < keys.length; ++i) {
-		let key = keys[i];
-		let aufgabe = klausur.getAufgabe(key);
-		let prozent = (aufgabe.getPunkteDurchschnitt() / aufgabe.getMaxPunkte()) * 100.0;
-		labels.push(key);
-		ray.push(prozent);
-	}
-
-	container.append("<h2>Durchschnittlich erreichte Punkte pro Aufgabe in Prozent</h2>");
-	div = new $("<div class='chart-punkteproaufgabe chart'></div>");
-	container.append(div);
-	new Chartist.Bar('.chart-punkteproaufgabe', {
-		labels: labels,
-		series: [ray]
-	});
-
-
-}
-
-
-function ensureAufgabenAnzahl(anzahl) {
-	anzahl = parseFloat(anzahl);
-	if(isNaN(anzahl)) return;
-	anzahl |= 0;
-
-	if(anzahl < 1) anzahl = 1;
-
-	while(anzahl > klausur.getAnzahlAufgaben()) {
-		klausur.addAufgabe();
-	}
-
-	while(anzahl < klausur.getAnzahlAufgaben()) {
-		let letzteAufgabe = klausur.getAnzahlAufgaben();
-		klausur.removeAufgabe(letzteAufgabe);
-	}
-
-	showKlausur();
-}
-
-
-function status(msg) {
-	$("#status").text(msg);
-}
-
-
-function save() {
-	$("#dialog-passwort-speichern1").dialog({
-		modal:true,
-		buttons: {
-			"Speichern": function() {
-				let pwd1 = $("#passwort-speichern1").val();
-				let pwd2 = $("#passwort-speichern2").val();
-
-				if(pwd1 != pwd2) {
-					alert("Passwörter sind unterschiedlich!");
-					return;
-				}
-				$(this).dialog( "close" );
-
-				let saveobj = klausur.toJSONObj();
-
-				if(pwd1) {
-					let encdata = sjcl.encrypt(pwd1, JSON.stringify(saveobj), { "ks":256 });
-					saveobj = {
-						"encryption" : "sjcl",
-						"encdata" : encdata
-					}
-				}
-
-				let jsonstring = JSON.stringify(saveobj);
-
-				let link = document.getElementById("savelink");
-				link.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonstring);
-				link.click();
-	
-			},
-			"Abbrechen": function() {
-				$(this).dialog( "close" );
-	        }
-		}
-	});
-
-
-	return false;
-}
-
-
-function load() {
-	var files = document.getElementById("files").files;
-	if(files.length < 1) {
-		return;
-	}
-	var reader = new FileReader();
-	// Closure to capture the file information.
-	reader.onload = (function (theFile) {
-		return function (e) {
-			var data = JSON.parse(e.target.result);
-
-			if(data.encryption) {
-				$("#dialog-passwort-laden").dialog({
-					modal:true,
-					buttons: {
-						"Laden": function() {
-							try {
-								let decrypted = sjcl.decrypt($("#passwort-laden").val(), data.encdata);
-								$(this).dialog("close");
-
-								data = JSON.parse(decrypted);
-								klausur = new Klausur(data);
-								showKlausur();
-							} catch(e) {
-								alert("Entschlüsselung schlug fehl. Passwort korrekt?");
-							}
-						},
-						"Abbrechen": function() {
-							$(this).dialog( "close" );
-						}
-					}
-				});
-			} else {
-				klausur = new Klausur(data);
-				showKlausur();
-			}
-		};
-	})(files[0]);
-	reader.readAsText(files[0], "UTF-8");
-}
-
-
-function exportPunkteCSV() {
-	var string = klausur.exportPunkteCSV();
-	var link = document.getElementById("exportPunkteCSV");
-	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
-	return true;
-}
-
-function importPunkteCSV() {
-	var files = document.getElementById("importPunkteCSV").files;
-	if(files.length < 1) {
-		return;
-	}
-	var reader = new FileReader();
-	// Closure to capture the file information.
-	reader.onload = (function (theFile) {
-		return function (e) {
-			var string = e.target.result;
-			klausur.importPunkteCSV(string);
-			showPunkte();
-		};
-	})(files[0]);
-	reader.readAsText(files[0], "UTF-8");
-
-}
-
-function exportAuswertungOrgaCSV() {
-	var string = klausur.exportAuswertungOrgaCSV();
-	var link = document.getElementById("exportAuswertungOrgaCSV");
-	
-	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
-	return true;
-}
-
-
-function exportAuswertungBeiblattCSV() {
-	var string = klausur.exportAuswertungBeiblattCSV();
-	var link = document.getElementById("exportAuswertungBeiblattCSV");
-	
-	link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(string);
-	return true;
-}
-
-
-var klausur = new Klausur();
-ensureAufgabenAnzahl(1);
-
-
-</script>
-
-<div id="dialog-passwort-speichern1" title="Passwort" style="display:none">
-Passwort für verschlüsseltes Speichern (leerlassen für unverschlüsseltes Speichern):
-<input id="passwort-speichern1" type="password" size="25" />
-</br>
-Passwort wiederholen:
-<input id="passwort-speichern2" type="password" size="25" />
-</div>
-
-<a href="" id="savelink" download="klausur.json""></a>
-
-<div id="dialog-passwort-laden" title="Passwort für verschlüsselte Datei" style="display:none">
-<input id="passwort-laden" type="password" size="25" />
-</div>
+	<!-- Inhalt -->
+	<div class="container pt-3" id="content">
+		<!-- Inhalt -->
+		<div class="container" id="container"></div>
+
+		<!-- Menü zur Passworteingabe beim Speichern -->
+		<div id="dialog-passwort-speichern1" title="Passwort" style="display:none">
+			Passwort für verschlüsseltes Speichern (leerlassen für unverschlüsseltes Speichern):
+			<input id="passwort-speichern1" type="password" size="25" />
+			</br>
+			Passwort wiederholen:
+			<input id="passwort-speichern2" type="password" size="25" />
+		</div>
+
+		<!-- Menü zur Passworteingabe beim Laden -->
+		<div id="dialog-passwort-laden" title="Passwort für verschlüsselte Datei" style="display:none">
+			<input id="passwort-laden" type="password" size="25" />
+		</div>
+	</div>
+
+
+	<!-- Footer -->
+	<footer class="container-fluid bg-primary text-light mt-3 pt-2">
+		<div class="container-fluid mr-auto">&#9400; VIT 2020</div>
+	</footer>
 
 </body>
+
 </html>

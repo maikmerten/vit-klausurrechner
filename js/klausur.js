@@ -1,3 +1,13 @@
+/**
+ * Repräsentation einer Klausur
+ */
+
+
+
+/**
+ * 
+ * @param {*} jsonObj 
+ */
 function Klausur(jsonObj) {
 	this.aufgaben = new Object();
 	this.minKennziffer = 1;
@@ -5,9 +15,9 @@ function Klausur(jsonObj) {
 	this.modul = "";
 	this.kommentar = "";
 
-	if(jsonObj) {
+	if (jsonObj) {
 		let keys = Object.keys(jsonObj.aufgaben);
-		for(let i = 0; i < keys.length; ++i) {
+		for (let i = 0; i < keys.length; ++i) {
 			let key = keys[i];
 			let aufgabe = new Aufgabe(jsonObj.aufgaben[key]);
 			this.aufgaben[key] = aufgabe;
@@ -22,10 +32,13 @@ function Klausur(jsonObj) {
 
 }
 
-Klausur.prototype.toJSONObj = function() {
+/**
+ * Gibt Klausur incl. Aller Aufgaben als JSON-Objekt zurück
+ */
+Klausur.prototype.toJSONObj = function () {
 	let aufgaben = new Object();
 	let keys = Object.keys(this.aufgaben);
-	for(let i = 0; i < keys.length; ++i) {
+	for (let i = 0; i < keys.length; ++i) {
 		let key = keys[i];
 		aufgaben[key] = this.aufgaben[key].toJSONObj();
 	}
@@ -35,46 +48,50 @@ Klausur.prototype.toJSONObj = function() {
 		"minKennziffer": this.minKennziffer,
 		"maxKennziffer": this.maxKennziffer,
 		"mcSchrankeFixiert": this.mcSchrankeFixiert,
-		"modul" : this.modul,
+		"modul": this.modul,
 		"kommentar": this.kommentar
 	}
 }
 
-
-Klausur.prototype.exportPunkteCSV = function() {
+/**
+ * 
+ */
+Klausur.prototype.exportPunkteCSV = function () {
 	let result = "";
 
 	// Kopf der Tabelle
 	result += "Kennziffer"
-	for(let i = 1; i <= this.getAnzahlAufgaben(); ++i) {
+	for (let i = 1; i <= this.getAnzahlAufgaben(); ++i) {
 		result += ";Aufgabe " + i;
 	}
 
-	for(let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
+	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		result += "\n" + kennziffer + ";";
-		for(let aufg = 1; aufg <= this.getAnzahlAufgaben(); ++aufg) {
+		for (let aufg = 1; aufg <= this.getAnzahlAufgaben(); ++aufg) {
 			let aufgabe = this.getAufgabe(aufg);
 			let punkte = aufgabe.getPunkte(kennziffer);
-			result += punkte != null ? punkte.toString().replace(".",",") + ";" : ";";
+			result += punkte != null ? punkte.toString().replace(".", ",") + ";" : ";";
 		}
-	}	
+	}
 
 	return result;
 }
 
-
-Klausur.prototype.importPunkteCSV = function(csvstring) {
+/**
+ * 
+ */
+Klausur.prototype.importPunkteCSV = function (csvstring) {
 	let zeilen = csvstring.split("\n");
 
-	for(let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
-		if(kennziffer < zeilen.length) {
+	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
+		if (kennziffer < zeilen.length) {
 			let zeile = zeilen[kennziffer];
 			let spalten = zeile.split(";");
-			for(let aufg = 1; aufg <= this.getAnzahlAufgaben(); ++aufg) {
-				if(aufg < spalten.length) {
+			for (let aufg = 1; aufg <= this.getAnzahlAufgaben(); ++aufg) {
+				if (aufg < spalten.length) {
 					let aufgabe = this.getAufgabe(aufg);
 					let punkte = spalten[aufg].trim();
-					if(punkte.length > 0) {
+					if (punkte.length > 0) {
 						aufgabe.setPunkte(kennziffer, punkte);
 					}
 				}
@@ -83,16 +100,19 @@ Klausur.prototype.importPunkteCSV = function(csvstring) {
 	}
 }
 
-Klausur.prototype.exportAuswertungOrgaCSV = function() {
-	let formatNumber = function(number) {
-		if(isNaN(number) || number == null) {
+/**
+ * 
+ */
+Klausur.prototype.exportAuswertungOrgaCSV = function () {
+	let formatNumber = function (number) {
+		if (isNaN(number) || number == null) {
 			return "";
 		}
-		return number.toString().replace(".",",");
+		return number.toString().replace(".", ",");
 	}
 
-	let formatFixed = function(number, stellen) {
-		if(isNaN(number) || number == null) {
+	let formatFixed = function (number, stellen) {
+		if (isNaN(number) || number == null) {
 			return "";
 		}
 		return number.toFixed(stellen).replace(".", ",");
@@ -101,7 +121,7 @@ Klausur.prototype.exportAuswertungOrgaCSV = function() {
 	let auswertung = this.getAuswertung();
 	let result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
 
-	for(let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
+	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
 		result += "\n";
 		result += kennziffer + ";";
@@ -126,16 +146,19 @@ Klausur.prototype.exportAuswertungOrgaCSV = function() {
 	return result;
 }
 
-Klausur.prototype.exportAuswertungBeiblattCSV = function() {
-	let formatNumber = function(number) {
-		if(isNaN(number) || number == null) {
+/**
+ * 
+ */
+Klausur.prototype.exportAuswertungBeiblattCSV = function () {
+	let formatNumber = function (number) {
+		if (isNaN(number) || number == null) {
 			return "";
 		}
-		return number.toString().replace(".",",");
+		return number.toString().replace(".", ",");
 	}
 
-	let formatFixed = function(number, stellen) {
-		if(isNaN(number) || number == null) {
+	let formatFixed = function (number, stellen) {
+		if (isNaN(number) || number == null) {
 			return "";
 		}
 		return number.toFixed(stellen).replace(".", ",");
@@ -148,10 +171,10 @@ Klausur.prototype.exportAuswertungBeiblattCSV = function() {
 	let auswertung = this.getAuswertung();
 	let result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Rangpunkte-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Rangpunkte-mc;angewendete_Grenze_MC;Klausuranteil_MC;Rangpunkte_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
 
-	for(let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
+	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
 		let aufgaben = eintrag.aufgaben;
-		for(let i = 0; i < aufgaben.length; ++i) {
+		for (let i = 0; i < aufgaben.length; ++i) {
 			let aufgabe = aufgaben[i];
 			result += "\n";
 			result += (this.getModul() + "").replace(/;/g, ",") + ";";
@@ -179,52 +202,74 @@ Klausur.prototype.exportAuswertungBeiblattCSV = function() {
 	return result;
 }
 
-Klausur.prototype.getAnzahlAufgaben = function() {
+/**
+ * 
+ */
+Klausur.prototype.getAnzahlAufgaben = function () {
 	return Object.keys(this.aufgaben).length;
 }
 
-Klausur.prototype.addAufgabe = function() {
+/**
+ * 
+ */
+Klausur.prototype.addAufgabe = function () {
 	var id = this.getAnzahlAufgaben() + 1;
 
 	this.aufgaben[id] = new Aufgabe();
 }
 
-Klausur.prototype.removeAufgabe = function(key) {
+/**
+ * 
+ */
+Klausur.prototype.removeAufgabe = function (key) {
 	delete this.aufgaben[key];
 }
 
-Klausur.prototype.getAufgabe = function(key) {
+/**
+ * 
+ */
+Klausur.prototype.getAufgabe = function (key) {
 	return this.aufgaben[key];
 }
 
-Klausur.prototype.getAufgabenKeys = function() {
+/**
+ * 
+ */
+Klausur.prototype.getAufgabenKeys = function () {
 	var result = new Array();
-	for(var i = 1; i <= this.getAnzahlAufgaben(); ++i) {
+	for (var i = 1; i <= this.getAnzahlAufgaben(); ++i) {
 		result.push(i);
 	}
 	return result;
 }
 
-
-Klausur.prototype.getMinKennziffer = function() {
+/**
+ * 
+ */
+Klausur.prototype.getMinKennziffer = function () {
 	return this.minKennziffer;
 }
 
-
-Klausur.prototype.getMaxKennziffer = function() {
+/**
+ * 
+ */
+Klausur.prototype.getMaxKennziffer = function () {
 	return this.maxKennziffer;
 }
 
-Klausur.prototype.setMaxKennziffer = function(maxKennziffer) {
+/**
+ * 
+ */
+Klausur.prototype.setMaxKennziffer = function (maxKennziffer) {
 	maxKennziffer = parseFloat(maxKennziffer);
-	if(isNaN(maxKennziffer)) return;
+	if (isNaN(maxKennziffer)) return;
 
 	maxKennziffer |= 0;
 	this.maxKennziffer = maxKennziffer;
 	let keys = Object.keys(this.aufgaben);
 	// iteriere durch alle Aufgaben und verwerfe alle Punkte
 	// für Kennziffern, die größer als die maximale Kennziffer sind
-	for(let i = 0; i < keys.length; ++i) {
+	for (let i = 0; i < keys.length; ++i) {
 		let key = keys[i];
 		let aufgabe = this.aufgaben[key];
 		aufgabe.ensureMaxKennziffer(maxKennziffer);
@@ -232,23 +277,25 @@ Klausur.prototype.setMaxKennziffer = function(maxKennziffer) {
 
 }
 
-	// Suche alle Kennziffern, für die Punkte für MC/nicht-MC-Aufgaben eingetragen sind
-Klausur.prototype.getKennziffernMitPunkten = function(mc) {
+/** 
+ * Suche alle Kennziffern, für die Punkte für MC/nicht-MC-Aufgaben eingetragen sind
+ */
+Klausur.prototype.getKennziffernMitPunkten = function (mc) {
 	let result = new Array();
-		
+
 	// iteriere durch alle Kennziffern
-	for(let kennz = this.minKennziffer; kennz <= this.maxKennziffer; ++kennz) {
+	for (let kennz = this.minKennziffer; kennz <= this.maxKennziffer; ++kennz) {
 		// iteriere durch alle Aufgaben
 		let keys = Object.keys(this.aufgaben);
-		for(let i = 0; i < keys.length; ++i) {
+		for (let i = 0; i < keys.length; ++i) {
 			let key = keys[i];
 			let aufgabe = this.aufgaben[key];
-			if(aufgabe.getIsMC() != mc) {
+			if (aufgabe.getIsMC() != mc) {
 				continue;
 			}
 
 			let punkte = aufgabe.getPunkte(kennz);
-			if(punkte != null) {
+			if (punkte != null) {
 				result.push(kennz);
 				break;
 			}
@@ -258,44 +305,49 @@ Klausur.prototype.getKennziffernMitPunkten = function(mc) {
 	return result;
 }
 
-Klausur.prototype.getErreichbarePunkte = function(mc) {
+/**
+ * 
+ */
+Klausur.prototype.getErreichbarePunkte = function (mc) {
 	let summe = 0;
 	let keys = Object.keys(this.aufgaben);
-	for(let i = 0; i < keys.length; ++i) {
+	for (let i = 0; i < keys.length; ++i) {
 		let key = keys[i];
 		let aufgabe = this.aufgaben[key];
-		if(aufgabe.getIsMC() == mc) {
+		if (aufgabe.getIsMC() == mc) {
 			summe += aufgabe.getMaxPunkte();
 		}
 	}
 	return summe;
 }
 
-
-Klausur.prototype.getPunkteDurchschnitt = function(mc) {
+/**
+ * 
+ */
+Klausur.prototype.getPunkteDurchschnitt = function (mc) {
 	let teilnehmer = this.getKennziffernMitPunkten(mc).length;
 	let summe = 0;
 	let keys = Object.keys(this.aufgaben);
-	for(let i = 0; i < keys.length; ++i) {
+	for (let i = 0; i < keys.length; ++i) {
 		let key = keys[i];
 		let aufgabe = this.aufgaben[key];
-		if(aufgabe.getIsMC() == mc) {
+		if (aufgabe.getIsMC() == mc) {
 			summe += aufgabe.getPunkteSumme();
 		}
 	}
 	return teilnehmer > 0 ? (summe / teilnehmer) : NaN;
 }
 
-Klausur.prototype.getPunkteFuerKennziffer = function(kennziffer, mc) {
+Klausur.prototype.getPunkteFuerKennziffer = function (kennziffer, mc) {
 	let summe = NaN;
 	let keys = Object.keys(this.aufgaben);
-	for(let i = 0; i < keys.length; ++i) {
+	for (let i = 0; i < keys.length; ++i) {
 		let key = keys[i];
 		let aufgabe = this.aufgaben[key];
-		if(aufgabe.getIsMC() == mc) {
+		if (aufgabe.getIsMC() == mc) {
 			let pkt = aufgabe.getPunkte(kennziffer);
-			if(pkt != null) {
-				if(isNaN(summe)) {
+			if (pkt != null) {
+				if (isNaN(summe)) {
 					summe = 0;
 				}
 				summe += pkt;
@@ -305,47 +357,47 @@ Klausur.prototype.getPunkteFuerKennziffer = function(kennziffer, mc) {
 	return summe;
 }
 
-Klausur.prototype.getTXTSchranke = function() {
+Klausur.prototype.getTXTSchranke = function () {
 	return this.getErreichbarePunkte(false) * 0.5;
 }
 
 
-Klausur.prototype.getMCSchrankeFest = function() {
+Klausur.prototype.getMCSchrankeFest = function () {
 	let erreichbar = this.getErreichbarePunkte(true);
 	return erreichbar * 0.6;
 }
 
-Klausur.prototype.getMCSchrankeDynamisch = function() {
+Klausur.prototype.getMCSchrankeDynamisch = function () {
 	return this.getPunkteDurchschnitt(true) * 0.78;
 }
 
-Klausur.prototype.setMCSchrankeFixiert = function(value) {
+Klausur.prototype.setMCSchrankeFixiert = function (value) {
 	schranke = parseFloat(value.replace(',', '.'));
-	if(isNaN(schranke)) {
-		delete(this.mcSchrankeFixiert);
+	if (isNaN(schranke)) {
+		delete (this.mcSchrankeFixiert);
 	} else {
 		let maxPunkteMC = this.getErreichbarePunkte(true);
-		if(schranke < 0) schranke = 0;
-		if(schranke > maxPunkteMC) schranke = maxPunkteMC;
+		if (schranke < 0) schranke = 0;
+		if (schranke > maxPunkteMC) schranke = maxPunkteMC;
 		this.mcSchrankeFixiert = schranke;
 	}
 }
 
-Klausur.prototype.getMCSchrankeFixiert = function() {
-	if(this.mcSchrankeFixiert) {
+Klausur.prototype.getMCSchrankeFixiert = function () {
+	if (this.mcSchrankeFixiert) {
 		let schranke = this.mcSchrankeFixiert;
-		if(!isNaN(schranke)) return this.mcSchrankeFixiert;
+		if (!isNaN(schranke)) return this.mcSchrankeFixiert;
 	}
 	return null;
 }
 
-Klausur.prototype.getSchranke = function(mc) {
-	if(mc) {
+Klausur.prototype.getSchranke = function (mc) {
+	if (mc) {
 		// Schranke für Multiple-Choice
 		let fest = this.getMCSchrankeFest();
 		let dyn = this.getMCSchrankeDynamisch();
 		let mcSchranke = (!isNaN(dyn) && dyn < fest) ? dyn : fest;
-		if(this.getMCSchrankeFixiert()) {
+		if (this.getMCSchrankeFixiert()) {
 			mcSchranke = this.getMCSchrankeFixiert();
 		}
 		return mcSchranke;
@@ -356,11 +408,11 @@ Klausur.prototype.getSchranke = function(mc) {
 }
 
 
-Klausur.prototype.getProzentFuerKennziffer = function(kennziffer, mc) {
-	if(mc) {
+Klausur.prototype.getProzentFuerKennziffer = function (kennziffer, mc) {
+	if (mc) {
 		// Berechnung für Multiple-Choice
 		let punkte = this.getPunkteFuerKennziffer(kennziffer, true);
-		if(isNaN(punkte)) {
+		if (isNaN(punkte)) {
 			return NaN;
 		}
 
@@ -368,7 +420,7 @@ Klausur.prototype.getProzentFuerKennziffer = function(kennziffer, mc) {
 		let erreichbar = this.getErreichbarePunkte(true);
 
 
-		if(punkte >= mindestpunktzahl) {
+		if (punkte >= mindestpunktzahl) {
 			let ueberschreiten = punkte - mindestpunktzahl;
 			let diff_schranke_max = erreichbar - mindestpunktzahl;
 			return (ueberschreiten / diff_schranke_max) * 100;
@@ -379,80 +431,80 @@ Klausur.prototype.getProzentFuerKennziffer = function(kennziffer, mc) {
 		// Berechnung für Normalfall
 		let punkte = this.getPunkteFuerKennziffer(kennziffer, false);
 		let erreichbar = this.getErreichbarePunkte(false);
-		if(isNaN(punkte) || isNaN(erreichbar)) {
+		if (isNaN(punkte) || isNaN(erreichbar)) {
 			return NaN;
 		}
-		return (punkte / erreichbar) * 100;	
+		return (punkte / erreichbar) * 100;
 	}
 }
 
 
-Klausur.prototype.getRangpunkteFuerProzent = function(prozent, mc) {
-	if(mc) {
+Klausur.prototype.getRangpunkteFuerProzent = function (prozent, mc) {
+	if (mc) {
 		// Berechnung für Multiple-Choice
-		if(isNaN(prozent)) return NaN;
+		if (isNaN(prozent)) return NaN;
 
-		if(prozent >=  87.50) return 15;
-		if(prozent >=  75.00) return 14;
-		if(prozent >=  66.67) return 13;
-		if(prozent >=  58.33) return 12;
-		if(prozent >=  50.00) return 11;
-		if(prozent >=  41.67) return 10;
-		if(prozent >=  33.33) return 9;
-		if(prozent >=  25.00) return 8;
-		if(prozent >=  16.67) return 7;
-		if(prozent >=   8.33) return 6;
-		if(prozent >=   0.00) return 5;
-		if(prozent >= -16.67) return 4;
-		if(prozent >= -33.33) return 3;
-		if(prozent >= -50.00) return 2;
-		if(prozent >= -75.00) return 1;
+		if (prozent >= 87.50) return 15;
+		if (prozent >= 75.00) return 14;
+		if (prozent >= 66.67) return 13;
+		if (prozent >= 58.33) return 12;
+		if (prozent >= 50.00) return 11;
+		if (prozent >= 41.67) return 10;
+		if (prozent >= 33.33) return 9;
+		if (prozent >= 25.00) return 8;
+		if (prozent >= 16.67) return 7;
+		if (prozent >= 8.33) return 6;
+		if (prozent >= 0.00) return 5;
+		if (prozent >= -16.67) return 4;
+		if (prozent >= -33.33) return 3;
+		if (prozent >= -50.00) return 2;
+		if (prozent >= -75.00) return 1;
 		return 0;
 	} else {
 		// Berechnung für "normale" Aufgaben (aber was ist schon normal...)
-		if(isNaN(prozent)) return NaN;
+		if (isNaN(prozent)) return NaN;
 
-		if(prozent >= 93.70) return 15;
-		if(prozent >= 87.50) return 14;
-		if(prozent >= 83.40) return 13;
-		if(prozent >= 79.20) return 12;
-		if(prozent >= 75.00) return 11;
-		if(prozent >= 70.90) return 10;
-		if(prozent >= 66.70) return 9;
-		if(prozent >= 62.50) return 8;
-		if(prozent >= 58.40) return 7;
-		if(prozent >= 54.20) return 6;
-		if(prozent >= 50.00) return 5;
-		if(prozent >= 41.70) return 4;
-		if(prozent >= 33.40) return 3;
-		if(prozent >= 25.00) return 2;
-		if(prozent >= 12.50) return 1;
+		if (prozent >= 93.70) return 15;
+		if (prozent >= 87.50) return 14;
+		if (prozent >= 83.40) return 13;
+		if (prozent >= 79.20) return 12;
+		if (prozent >= 75.00) return 11;
+		if (prozent >= 70.90) return 10;
+		if (prozent >= 66.70) return 9;
+		if (prozent >= 62.50) return 8;
+		if (prozent >= 58.40) return 7;
+		if (prozent >= 54.20) return 6;
+		if (prozent >= 50.00) return 5;
+		if (prozent >= 41.70) return 4;
+		if (prozent >= 33.40) return 3;
+		if (prozent >= 25.00) return 2;
+		if (prozent >= 12.50) return 1;
 		return 0;
 	}
 }
 
 
-Klausur.prototype.getNote = function(rangpunkte) {
-	if(isNaN(rangpunkte)) return "";
+Klausur.prototype.getNote = function (rangpunkte) {
+	if (isNaN(rangpunkte)) return "";
 
-	if(rangpunkte >= 14) return "sehr gut";
-	if(rangpunkte >= 11) return "gut";
-	if(rangpunkte >= 8) return "befriedigend";
-	if(rangpunkte >= 5) return "ausreichend";
-	if(rangpunkte >= 2) return "mangelhaft";
+	if (rangpunkte >= 14) return "sehr gut";
+	if (rangpunkte >= 11) return "gut";
+	if (rangpunkte >= 8) return "befriedigend";
+	if (rangpunkte >= 5) return "ausreichend";
+	if (rangpunkte >= 2) return "mangelhaft";
 	return "ungenügend";
 }
 
 
-Klausur.prototype.getRangpunkteGesamt = function(erreichbarTXT, erreichbarMC, rangpunkteTXT, rangpunkteMC) {
-	if(isNaN(erreichbarTXT) || isNaN(erreichbarMC)) return NaN;
-	if(isNaN(rangpunkteTXT) && !isNaN(rangpunkteMC)) return rangpunkteMC;
-	if(!isNaN(rangpunkteTXT) && isNaN(rangpunkteMC)) return rangpunkteTXT;
-	if(isNaN(rangpunkteTXT) && isNaN(rangpunkteMC)) return NaN;
+Klausur.prototype.getRangpunkteGesamt = function (erreichbarTXT, erreichbarMC, rangpunkteTXT, rangpunkteMC) {
+	if (isNaN(erreichbarTXT) || isNaN(erreichbarMC)) return NaN;
+	if (isNaN(rangpunkteTXT) && !isNaN(rangpunkteMC)) return rangpunkteMC;
+	if (!isNaN(rangpunkteTXT) && isNaN(rangpunkteMC)) return rangpunkteTXT;
+	if (isNaN(rangpunkteTXT) && isNaN(rangpunkteMC)) return NaN;
 
 
 	// wenn beide Rangpunktzahlen gleich sind, dann brauchen wir nicht rechnen
-	if(rangpunkteTXT == rangpunkteMC) {
+	if (rangpunkteTXT == rangpunkteMC) {
 		return rangpunkteTXT;
 	}
 
@@ -467,9 +519,9 @@ Klausur.prototype.getRangpunkteGesamt = function(erreichbarTXT, erreichbarMC, ra
 	return rangpunkte;
 }
 
-Klausur.prototype.getRangpunkteGanzzahl = function(rangpunkte) {
+Klausur.prototype.getRangpunkteGanzzahl = function (rangpunkte) {
 	let rpganz = rangpunkte;
-	if(rpganz < 5.0) {
+	if (rpganz < 5.0) {
 		// nicht bestanden, abrunden
 		rpganz = Math.floor(rangpunkte);
 	} else {
@@ -481,11 +533,11 @@ Klausur.prototype.getRangpunkteGanzzahl = function(rangpunkte) {
 }
 
 
-Klausur.prototype.getAuswertung = function() {
+Klausur.prototype.getAuswertung = function () {
 	let erreichbarTXT = this.getErreichbarePunkte(false);
 	let erreichbarMC = this.getErreichbarePunkte(true);
 
-		
+
 	let durchschnittMC = this.getPunkteDurchschnitt(true);
 	let festeMindestpunktzahlMC = this.getMCSchrankeFest();
 	let dynamischeMindestpunktzahlMC = this.getMCSchrankeDynamisch();
@@ -493,7 +545,7 @@ Klausur.prototype.getAuswertung = function() {
 
 	let eintraege = new Object();
 
-	for(let i = this.getMinKennziffer(); i <= this.getMaxKennziffer(); i++) {
+	for (let i = this.getMinKennziffer(); i <= this.getMaxKennziffer(); i++) {
 		let eintrag = new Object();
 		eintrag.punkteMC = this.getPunkteFuerKennziffer(i, true);
 		eintrag.prozentMC = this.getProzentFuerKennziffer(i, true);
@@ -510,7 +562,7 @@ Klausur.prototype.getAuswertung = function() {
 		// stelle Informationen zu den einzelnen Aufgaben zusammen
 		let aufgaben = new Array();
 		let aufgabenKeys = this.getAufgabenKeys();
-		for(let j = 0; j < aufgabenKeys.length; ++j) {
+		for (let j = 0; j < aufgabenKeys.length; ++j) {
 			let key = aufgabenKeys[j];
 			let aufgabe = klausur.getAufgabe(key);
 			let aufgabeninfo = new Object();
@@ -526,32 +578,32 @@ Klausur.prototype.getAuswertung = function() {
 	}
 
 	var result = {
-		"minKennziffer" : this.getMinKennziffer(),
-		"maxKennziffer" : this.getMaxKennziffer(),
-		"erreichbarTXT" : erreichbarTXT,
-		"erreichbarMC" : erreichbarMC,
-		"durchschnittMC" : durchschnittMC,
-		"festeMindestpunktzahlMC" : festeMindestpunktzahlMC,
-		"dynamischeMindestpunktzahlMC" : dynamischeMindestpunktzahlMC,
-		"mindestpunktzahlMC" : mindestpunktzahlMC,
-		"eintraege" : eintraege
+		"minKennziffer": this.getMinKennziffer(),
+		"maxKennziffer": this.getMaxKennziffer(),
+		"erreichbarTXT": erreichbarTXT,
+		"erreichbarMC": erreichbarMC,
+		"durchschnittMC": durchschnittMC,
+		"festeMindestpunktzahlMC": festeMindestpunktzahlMC,
+		"dynamischeMindestpunktzahlMC": dynamischeMindestpunktzahlMC,
+		"mindestpunktzahlMC": mindestpunktzahlMC,
+		"eintraege": eintraege
 	}
 	return result;
 }
 
-Klausur.prototype.getModul = function() {
+Klausur.prototype.getModul = function () {
 	return this.modul;
 }
 
-Klausur.prototype.setModul = function(modul) {
+Klausur.prototype.setModul = function (modul) {
 	this.modul = modul;
 }
 
-Klausur.prototype.getKommentar = function() {
+Klausur.prototype.getKommentar = function () {
 	return this.kommentar;
 }
 
-Klausur.prototype.setKommentar = function(kommentar) {
+Klausur.prototype.setKommentar = function (kommentar) {
 	this.kommentar = kommentar;
 }
 

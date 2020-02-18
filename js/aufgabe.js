@@ -1,3 +1,11 @@
+/**
+ * Repräsentation einer Aufgabe
+ */
+
+/**
+ * 
+ * @param {*} jsonObj 
+ */
 function Aufgabe(jsonObj) {
 	this.isMC = false;
 	this.maxPunkte = 0;
@@ -16,6 +24,9 @@ function Aufgabe(jsonObj) {
 
 }
 
+/**
+ * Gibt diese Aufgabe als JSON-Objekt zurück
+ */
 Aufgabe.prototype.toJSONObj = function() {
 	return {
 		"isMC": this.isMC,
