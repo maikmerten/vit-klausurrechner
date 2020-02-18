@@ -1,7 +1,11 @@
 /**
  * JavaScript
  */
-
+ 
+// PWA register service worker
+if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./js/sw.js');
+    }
 
 // Call init Funktion when loades
 window.addEventListener("load", init);
