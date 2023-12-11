@@ -7,7 +7,7 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./js/sw.js');
     }
 
-// Call init Funktion when loades
+// Call init Funktion when loaded
 window.addEventListener("load", init);
 
 // Diese Klausur
@@ -34,6 +34,38 @@ function init() {
     klausur = new Klausur();
 
     ensureAufgabenAnzahl(1);
+
+    // Speichern mit ctrl + s
+    document.onkeydown = (e) => {
+        if(e.code == "KeyS" && e.ctrlKey) {
+            e.preventDefault();
+            let focuselem = document.activeElement;
+            let tmp = document.createElement("input");
+            document.body.appendChild(tmp);
+            tmp.focus();
+            document.body.removeChild(tmp);
+            if(focuselem) {
+                focuselem.focus();
+            }
+            save();
+        }
+    }
+}
+
+/**
+ * Liefert ein geleertes Container-Element zurück
+ * @param {*} centered soll CSS-Klasse 'container' gesetzt werden
+ * @return ein geleertes Container-Element
+ */
+
+function getEmptiedContainer(centered) {
+    let container = document.getElementById("container");
+    container.classList.remove("container");
+    container.innerHTML = ""
+    if(centered) {
+        container.classList.add("container");
+    }
+    return container;
 }
 
 /** ------------------------------------------------------------
@@ -49,9 +81,7 @@ function showKlausur() {
     showButtonsKlausur();
 
     // Klausur anzeigen
-    let container = document.getElementById("container");
-    container.innerHTML = "";
-
+    let container = getEmptiedContainer(true);
 
     // =====================================
     // Allgemeine Angaben KARTE
@@ -94,7 +124,7 @@ function showKlausur() {
     zeile1.appendChild(anzahlAufgaben);
 
 
-    // Allgeimeine Angaben ZWEITE ZEILE
+    // Allgemeine Angaben ZWEITE ZEILE
     // =====================================
     let zeile2 = document.createElement("div");
     zeile2.classList.add("form-row");
@@ -264,11 +294,10 @@ function showPunkte(colorize) {
 
 
     // Tabelle für Punkte darstellen
-    let container = document.getElementById("container");
-    container.innerHTML = "";
+    let container = getEmptiedContainer(false);
 
     let punktTabelle = document.createElement("table");
-    punktTabelle.classList.add("table", "table-sm", "table-hover");
+    punktTabelle.classList.add("table", "table-sm", "table-hover", "punktetabelle");
     container.appendChild(punktTabelle);
 
     // Tabellenüberschrift
@@ -352,9 +381,7 @@ function showAuswertung(colorize) {
     showButtonsAuswertung(colorize);
 
     // Auswertung anzeigen
-    let container = document.getElementById("container");
-    container.innerHTML = "";
-
+    let container = getEmptiedContainer(true);
 
     let auswertung = klausur.getAuswertung();
 
@@ -487,9 +514,7 @@ function showStatistics() {
     let reay, labels, key, innerColors, outerColors;
 
     // Auswertung anzeigen
-    let container = document.getElementById("container");
-    container.innerHTML = "";
-
+    let container = getEmptiedContainer(true);
 
     // =====================================
     // Histogramm für Rangpunkte in Karte

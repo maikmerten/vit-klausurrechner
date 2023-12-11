@@ -2,7 +2,13 @@
  * User Styles für den Klausurrechner
  *
  */
- 
+
+ .punktetabelle {
+	width:auto;
+	margin-left:1em;
+ }
+
+
 /* Neuer Style für aktive Nav-items */
 .navbar-custom .nav-item.active .nav-link,
 .navbar-custom .nav-item:hover .nav-link {
