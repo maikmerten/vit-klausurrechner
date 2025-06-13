@@ -14,7 +14,7 @@ function Klausur(jsonObj) {
 	this.maxKennziffer = 50;
 	this.modul = "";
 	this.kommentar = "";
-	this.studiengang = "Diplom";
+	this.studiengang = "Diplom"; // "Diplom" oder "Bachelor"
 
 	if (jsonObj) {
 		let keys = Object.keys(jsonObj.aufgaben);
@@ -373,7 +373,17 @@ Klausur.prototype.getMCSchrankeFest = function () {
 }
 
 Klausur.prototype.getMCSchrankeDynamisch = function () {
-	return this.getPunkteDurchschnitt(true) * 0.78;
+	let schranke = this.getPunkteDurchschnitt(true) * 0.78;
+	
+	// Für Bachelor: § 38 (4) GVIDVDV
+	// [...] 78 Prozent der durchschnittlichen Punkte, mindestens jedoch 50 Prozent der erreichbaren Punkte
+	if(this?.studiengang === "Bachelor") {
+		let minSchranke = this.getErreichbarePunkte(true) * 0.5;
+		if (schranke < minSchranke) {
+			schranke = minSchranke;
+		}
+	}
+	return schranke;
 }
 
 Klausur.prototype.setMCSchrankeFixiert = function (value) {
