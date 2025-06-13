@@ -14,6 +14,7 @@ function Klausur(jsonObj) {
 	this.maxKennziffer = 50;
 	this.modul = "";
 	this.kommentar = "";
+	this.studiengang = "Diplom";
 
 	if (jsonObj) {
 		let keys = Object.keys(jsonObj.aufgaben);
@@ -28,6 +29,9 @@ function Klausur(jsonObj) {
 		this.mcSchrankeFixiert = jsonObj.mcSchrankeFixiert;
 		this.modul = jsonObj.modul;
 		this.kommentar = jsonObj.kommentar;
+		if (jsonObj.studiengang) {
+			this.studiengang = jsonObj.studiengang;
+		}
 	}
 
 }
@@ -49,7 +53,8 @@ Klausur.prototype.toJSONObj = function () {
 		"maxKennziffer": this.maxKennziffer,
 		"mcSchrankeFixiert": this.mcSchrankeFixiert,
 		"modul": this.modul,
-		"kommentar": this.kommentar
+		"kommentar": this.kommentar,
+		"studiengang": this.studiengang
 	}
 }
 
@@ -535,7 +540,9 @@ Klausur.prototype.getNote = function (rangpunkte) {
 	return "ungenügend";
 }
 
-
+/*
+ * Für Diplomstudiengang VIT
+ */
 Klausur.prototype.getRangpunkteGesamt = function (erreichbarTXT, erreichbarMC, rangpunkteTXT, rangpunkteMC) {
 	if (isNaN(erreichbarTXT) || isNaN(erreichbarMC)) return NaN;
 	if (isNaN(rangpunkteTXT) && !isNaN(rangpunkteMC)) return rangpunkteMC;
@@ -557,6 +564,49 @@ Klausur.prototype.getRangpunkteGesamt = function (erreichbarTXT, erreichbarMC, r
 	rangpunkte /= 100; // zwei Stellen zurück
 
 	return rangpunkte;
+}
+
+/*
+ * Für Bachelorstudiengang VIT
+ */
+Klausur.prototype.getNoteGesamt = function (erreichbarTXT, erreichbarMC, noteTXT, noteMC) {
+	if (isNaN(erreichbarTXT) || isNaN(erreichbarMC)) return NaN;
+	if (isNaN(noteTXT) && !isNaN(noteMC)) return noteMC;
+	if (!isNaN(noteTXT) && isNaN(noteMC)) return noteTXT;
+	if (isNaN(noteTXT) && isNaN(noteMC)) return NaN;
+
+
+	// wenn beide Noten gleich sind, dann brauchen wir nicht rechnen
+	if (noteTXT == noteMC) {
+		return noteTXT;
+	}
+
+	// diese Form wurde gewählt für gute numerische Präzision
+	let note = ((noteTXT * erreichbarTXT) + (noteMC * erreichbarMC)) / (erreichbarTXT + erreichbarMC);
+
+	// § 37 (6): Bei der Berechnung des gewichteten arithmetischen Mittels und des arithmetischen Mittels wird nur die erste Dezimalstelle hinter dem Komma ohne Rundung berücksichtigt.
+	note *= 10; // eine Stelle nach links
+	note |= 0; // Umwandlung in Ganzzahl ohne Rundung
+	note /= 10; // eine Stelle zurück
+
+	// Tabelle aus § 37 (6):
+	function numerischeNote(note) {
+		if (note >= 5.1) return 6.0;
+		if (note >= 4.1) return 5.0;
+		if (note >= 3.9) return 4.0;
+		if (note >= 3.5) return 3.7;
+		if (note >= 3.2) return 3.3;
+		if (note >= 2.9) return 3.0;
+		if (note >= 2.5) return 2.7;
+		if (note >= 2.2) return 2.3;
+		if (note >= 1.9) return 2.0;
+		if (note >= 1.5) return 1.7;
+		if (note >= 1.2) return 1.3;
+		return 1.0;
+	}
+	note = numerischeNote(note);
+
+	return note;
 }
 
 Klausur.prototype.getRangpunkteGanzzahl = function (rangpunkte) {
