@@ -438,7 +438,9 @@ Klausur.prototype.getProzentFuerKennziffer = function (kennziffer, mc) {
 	}
 }
 
-
+/*
+ * Für Diplomstudiengang VIT
+ */
 Klausur.prototype.getRangpunkteFuerProzent = function (prozent, mc) {
 	if (mc) {
 		// Berechnung für Multiple-Choice
@@ -482,6 +484,44 @@ Klausur.prototype.getRangpunkteFuerProzent = function (prozent, mc) {
 		return 0;
 	}
 }
+
+/*
+ * Für Bachelorstudiengang VIT
+ */
+Klausur.prototype.getNoteFuerProzent = function (prozent, mc) {
+	if (isNaN(prozent)) return NaN;
+
+	if (mc) {
+		// Berechnung für Multiple-Choice, GVIDVDV § 38 (5)
+		if (prozent >= 87.50) return 1.0;
+		if (prozent >= 75.00) return 1.3;
+		if (prozent >= 66.67) return 1.7;
+		if (prozent >= 58.33) return 2.0;
+		if (prozent >= 50.00) return 2.3;
+		if (prozent >= 41.67) return 2.7;
+		if (prozent >= 33.33) return 3.0;
+		if (prozent >= 25.00) return 3.3;
+		if (prozent >= 12.5) return 3.7;
+		if (prozent >= 0.00) return 4.0;
+		if (prozent >= -50.00) return 5.0;
+		return 6.0;
+	} else {
+		// Berechnung für Textaufgaben, GVIDVDV § 37 (2)
+		if (prozent >= 95) return 1.0;
+		if (prozent >= 90) return 1.3;
+		if (prozent >= 85) return 1.7;
+		if (prozent >= 80) return 2.0;
+		if (prozent >= 75) return 2.3;
+		if (prozent >= 70) return 2.7;
+		if (prozent >= 65) return 3.0;
+		if (prozent >= 60) return 3.3
+		if (prozent >= 55) return 3.7
+		if (prozent >= 50) return 4.0
+		if (prozent >= 25) return 5.0;
+		return 6.0;
+	}
+}
+
 
 
 Klausur.prototype.getNote = function (rangpunkte) {
