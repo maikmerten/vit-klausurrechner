@@ -124,7 +124,13 @@ Klausur.prototype.exportAuswertungOrgaCSV = function () {
 	}
 
 	let auswertung = this.getAuswertung();
-	let result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
+
+	let result = "";
+	if (this?.studiengang === "Bachelor") {
+		result = "Kennziffer;Note gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Note Textaufg.;Punkte MC;Prozent MC;Note MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
+	} else {
+		result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
+	}
 
 	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
@@ -174,7 +180,13 @@ Klausur.prototype.exportAuswertungBeiblattCSV = function () {
 	let prozentPunkteTXT = 100 - prozentPunkteMC;
 
 	let auswertung = this.getAuswertung();
-	let result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Rangpunkte-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Rangpunkte-mc;angewendete_Grenze_MC;Klausuranteil_MC;Rangpunkte_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
+	
+	let result = "";
+	if (this?.studiengang === "Bachelor") {
+		result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Note-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Note-mc;angewendete_Grenze_MC;Klausuranteil_MC;Note_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
+	} else {
+		result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Rangpunkte-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Rangpunkte-mc;angewendete_Grenze_MC;Klausuranteil_MC;Rangpunkte_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
+	}
 
 	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
