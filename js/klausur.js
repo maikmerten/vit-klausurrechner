@@ -539,14 +539,24 @@ Klausur.prototype.getNoteFuerProzent = function (prozent, mc) {
 
 
 
-Klausur.prototype.getNote = function (rangpunkte) {
-	if (isNaN(rangpunkte)) return "";
+Klausur.prototype.getNotenText = function (bewertung) {
+	if (isNaN(bewertung)) return "";
 
-	if (rangpunkte >= 14) return "sehr gut";
-	if (rangpunkte >= 11) return "gut";
-	if (rangpunkte >= 8) return "befriedigend";
-	if (rangpunkte >= 5) return "ausreichend";
-	if (rangpunkte >= 2) return "mangelhaft";
+	if(this?.studiengang === "Bachelor") {
+		// Bachelor: Notentext aus Noten. Tabelle aus § 37 (1) GVIDVDV
+		if (bewertung <= 1.3) return "sehr gut";
+		if (bewertung <= 2.3) return "gut";
+		if (bewertung <= 3.3) return "befriedigend";
+		if (bewertung <= 4.0) return "ausreichend";
+		if (bewertung <= 5.0) return "mangelhaft";
+	} else {
+		// Diplom: Notentext aus Rangpunkten
+		if (bewertung >= 14) return "sehr gut";
+		if (bewertung >= 11) return "gut";
+		if (bewertung >= 8) return "befriedigend";
+		if (bewertung >= 5) return "ausreichend";
+		if (bewertung >= 2) return "mangelhaft";
+	}
 	return "ungenügend";
 }
 
@@ -668,7 +678,7 @@ Klausur.prototype.getAuswertung = function () {
 
 		eintrag.rangpunkteGesamt = this.getBewertungGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
 		eintrag.rangpunkteGanzzahl = this.getRangpunkteGanzzahl(eintrag.rangpunkteGesamt);
-		eintrag.noteGesamt = this.getNote(eintrag.rangpunkteGanzzahl);
+		eintrag.noteGesamt = this.getNotenText(eintrag.rangpunkteGanzzahl);
 
 		// stelle Informationen zu den einzelnen Aufgaben zusammen
 		let aufgaben = new Array();
