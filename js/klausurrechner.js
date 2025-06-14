@@ -398,6 +398,8 @@ function showAuswertung(colorize) {
 
     let auswertung = klausur.getAuswertung();
 
+    let hasNoten = klausur?.studiengang === "Bachelor";
+
 
     // =====================================
     // Allgemeine Angaben KARTE
@@ -457,13 +459,13 @@ function showAuswertung(colorize) {
     auswertungTabelle.appendChild(kopfTabelle);
     let ueberschriftenTab = [];
     ueberschriftenTab.push("Kennz.");
-    ueberschriftenTab.push("Rangp. Gesamt");
+    ueberschriftenTab.push(hasNoten ? "Note Gesamt" : "Rangp. Gesamt");
     ueberschriftenTab.push("Pkt. Textaufg.");
     ueberschriftenTab.push("% Textaufg.");
-    ueberschriftenTab.push("Rangp. Textaufg.");
+    ueberschriftenTab.push(hasNoten ? "Note Textaufg." : "Rangp. Textaufg.");
     ueberschriftenTab.push("Pkt. MC");
     ueberschriftenTab.push("% MC");
-    ueberschriftenTab.push("Rangp. MC");
+    ueberschriftenTab.push(hasNoten ? "Note MC" : "Rangp. MC");
 
     kopfTabelle.appendChild(getTabellenZeile(true, ueberschriftenTab));
 
