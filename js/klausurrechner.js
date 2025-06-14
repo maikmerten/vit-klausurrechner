@@ -488,8 +488,25 @@ function showAuswertung(colorize) {
         dataTabelle.push(getNumberOrEmpty(eintrag.rangpunkteMC));
 
         let zeile = getTabellenZeile(false, dataTabelle);
-        if (colorize && eintrag.noteGesamt != null && eintrag.noteGesamt != "")
-            zeile.classList.add("rp" + eintrag.rangpunkteGanzzahl);
+        if (colorize && eintrag.noteGesamt != null && eintrag.noteGesamt != "") {
+            let rp = eintrag.rangpunkteGanzzahl;
+            if (klausur?.studiengang === "Bachelor") {
+                if (eintrag.rangpunkteGesamt <= 1.3) {
+                    rp = 15;
+                } else if (eintrag.rangpunkteGesamt <= 2.3) {
+                    rp = 12;
+                } else if (eintrag.rangpunkteGesamt <= 3.3) {
+                    rp = 9;
+                } else if (eintrag.rangpunkteGesamt <= 4.0) {
+                    rp = 6;
+                } else if (eintrag.rangpunkteGesamt <= 5.0) {
+                    rp = 3;
+                } else {
+                    rp = 0;
+                }
+            }
+            zeile.classList.add("rp" + rp);
+        }
         rumpfTabelle.appendChild(zeile);
 
         /* TODO Titel der Zellen
