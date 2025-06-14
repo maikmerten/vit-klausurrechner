@@ -282,6 +282,30 @@ Klausur.prototype.setMaxKennziffer = function (maxKennziffer) {
 
 }
 
+Klausur.prototype.getModul = function () {
+	return this.modul;
+}
+
+Klausur.prototype.setModul = function (modul) {
+	this.modul = modul;
+}
+
+Klausur.prototype.getKommentar = function () {
+	return this.kommentar;
+}
+
+Klausur.prototype.setKommentar = function (kommentar) {
+	this.kommentar = kommentar;
+}
+
+Klausur.prototype.setStudiengang = function (studiengang) {
+	this.studiengang = studiengang;
+}
+
+Klausur.prototype.getStudiengang = function () {
+	return this?.studiengang;
+}
+
 /** 
  * Suche alle Kennziffern, für die Punkte für MC/nicht-MC-Aufgaben eingetragen sind
  */
@@ -711,21 +735,4 @@ Klausur.prototype.getAuswertung = function () {
 	}
 	return result;
 }
-
-Klausur.prototype.getModul = function () {
-	return this.modul;
-}
-
-Klausur.prototype.setModul = function (modul) {
-	this.modul = modul;
-}
-
-Klausur.prototype.getKommentar = function () {
-	return this.kommentar;
-}
-
-Klausur.prototype.setKommentar = function (kommentar) {
-	this.kommentar = kommentar;
-}
-
 
