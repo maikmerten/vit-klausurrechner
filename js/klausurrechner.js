@@ -599,7 +599,7 @@ function showStatistics() {
 
 
     // =====================================
-    // Histogramm für Rangpunkte in Karte
+    // Histogramm für Noten in Karte
     // =====================================
     let divNoten = document.createElement("div");
     divNoten.classList.add("container");
