@@ -553,14 +553,23 @@ Klausur.prototype.getNoteFuerProzent = function (prozent, mc) {
 		if (prozent >= 75) return 2.3;
 		if (prozent >= 70) return 2.7;
 		if (prozent >= 65) return 3.0;
-		if (prozent >= 60) return 3.3
-		if (prozent >= 55) return 3.7
-		if (prozent >= 50) return 4.0
+		if (prozent >= 60) return 3.3;
+		if (prozent >= 55) return 3.7;
+		if (prozent >= 50) return 4.0;
 		if (prozent >= 25) return 5.0;
 		return 6.0;
 	}
 }
 
+Klausur.prototype.getBewertungFuerProzent = function (prozent, mc) {
+	if (this?.studiengang === "Bachelor") {
+		// Bachelor: Noten
+		return this.getNoteFuerProzent(prozent, mc);
+	} else {
+		// Diplom: Rangpunkte
+		return this.getRangpunkteFuerProzent(prozent, mc);
+	}
+}
 
 
 Klausur.prototype.getNotenText = function (bewertung) {
@@ -694,11 +703,11 @@ Klausur.prototype.getAuswertung = function () {
 		let eintrag = new Object();
 		eintrag.punkteMC = this.getPunkteFuerKennziffer(i, true);
 		eintrag.prozentMC = this.getProzentFuerKennziffer(i, true);
-		eintrag.rangpunkteMC = this.getRangpunkteFuerProzent(eintrag.prozentMC, true)
+		eintrag.rangpunkteMC = this.getBewertungFuerProzent(eintrag.prozentMC, true)
 
 		eintrag.punkteTXT = this.getPunkteFuerKennziffer(i, false);
 		eintrag.prozentTXT = this.getProzentFuerKennziffer(i, false);
-		eintrag.rangpunkteTXT = this.getRangpunkteFuerProzent(eintrag.prozentTXT, false);
+		eintrag.rangpunkteTXT = this.getBewertungFuerProzent(eintrag.prozentTXT, false);
 
 		eintrag.rangpunkteGesamt = this.getBewertungGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
 		eintrag.rangpunkteGanzzahl = this.getRangpunkteGanzzahl(eintrag.rangpunkteGesamt);
