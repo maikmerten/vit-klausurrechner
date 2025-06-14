@@ -534,69 +534,73 @@ function showStatistics() {
     // =====================================
     // Histogramm für Rangpunkte in Karte
     // =====================================
-    let divRangpunkte = document.createElement("div");
-    divRangpunkte.classList.add("container");
-    divRangpunkte.id = "rpHistogramm";
-    cardRangpunkte = getCard("Verteilung der Rangpunkte", divRangpunkte);
-    container.appendChild(cardRangpunkte);
+    function createRPHistogramm(container) {
+        let divRangpunkte = document.createElement("div");
+        divRangpunkte.classList.add("container");
+        divRangpunkte.id = "rpHistogramm";
+        let cardRangpunkte = getCard("Verteilung der Rangpunkte", divRangpunkte);
+        container.appendChild(cardRangpunkte);
 
-    // Daten sammeln
-    ray = new Array();
-    labels = ["15", "14", "13", "12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "0"];
-    for (let i = 0; i <= 15; ++i)
-        ray[i] = 0;
-    keys = Object.keys(auswertung.eintraege);
-    for (let i = 0; i < keys.length; ++i) {
-        let eintrag = auswertung.eintraege[keys[i]];
-        let rp = eintrag.rangpunkteGanzzahl | 0;
-        ray[15 - rp]++;
-    }
+        // Daten sammeln
+        let ray = new Array();
+        labels = ["15", "14", "13", "12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "0"];
+        for (let i = 0; i <= 15; ++i)
+            ray[i] = 0;
+        let keys = Object.keys(auswertung.eintraege);
+        for (let i = 0; i < keys.length; ++i) {
+            let eintrag = auswertung.eintraege[keys[i]];
+            let rp = eintrag.rangpunkteGanzzahl | 0;
+            ray[15 - rp]++;
+        }
 
-    // Plotly.js Diagramm konfigurieren
-    innerColors = [];
-    outerColors = [];
-    for (let rp of labels) {
-        if ((1 * rp) < 5) {
-            innerColors.push(nichtBestandenInnen);
-            outerColors.push(nichtBestandenAussen);
-        }
-        else {
-            innerColors.push(bestandenInnen);
-            outerColors.push(bestandenAussen);
-        }
-    }
-    let data = [
-        {
-            x: labels,
-            y: ray,
-            type: "bar",
-            text: ray.map(String),
-            textposition: 'auto',
-            marker: {
-                color: innerColors,
-                line: {
-                    color: outerColors,
-                    width: 1.5
-                }
+        // Plotly.js Diagramm konfigurieren
+        innerColors = [];
+        outerColors = [];
+        for (let rp of labels) {
+            if ((1 * rp) < 5) {
+                innerColors.push(nichtBestandenInnen);
+                outerColors.push(nichtBestandenAussen);
+            }
+            else {
+                innerColors.push(bestandenInnen);
+                outerColors.push(bestandenAussen);
             }
         }
-    ];
-    let layout = {
-        title: "Rangpunkte",
-        paper_bgcolor: hintergrund,
-        plot_bgcolor: hintergrund,
-        showlegend: false,
-        type: "category",
-        xaxis: {
-            title: 'Rangpunkte',
-            autorange: "reversed"
-        },
-        yaxis: {
-            title: 'Anzahl [ ]'
-        }
+        let data = [
+            {
+                x: labels,
+                y: ray,
+                type: "bar",
+                text: ray.map(String),
+                textposition: 'auto',
+                marker: {
+                    color: innerColors,
+                    line: {
+                        color: outerColors,
+                        width: 1.5
+                    }
+                }
+            }
+        ];
+        let layout = {
+            title: "Rangpunkte",
+            paper_bgcolor: hintergrund,
+            plot_bgcolor: hintergrund,
+            showlegend: false,
+            type: "category",
+            xaxis: {
+                title: 'Rangpunkte',
+                autorange: "reversed"
+            },
+            yaxis: {
+                title: 'Anzahl [ ]'
+            }
+        };
+        Plotly.newPlot('rpHistogramm', data, layout);
     };
-    Plotly.newPlot('rpHistogramm', data, layout);
-
+    if (klausur?.studiengang != "Bachelor") {
+        createRPHistogramm(container);
+    }
 
     // =====================================
     // Histogramm für Noten in Karte
@@ -604,7 +608,7 @@ function showStatistics() {
     let divNoten = document.createElement("div");
     divNoten.classList.add("container");
     divNoten.id = "notenHistogramm";
-    cardNoten = getCard("Verteilung der Rangpunkte", divNoten);
+    cardNoten = getCard("Verteilung der Noten", divNoten);
     container.appendChild(cardNoten);
 
     // Daten sammeln
