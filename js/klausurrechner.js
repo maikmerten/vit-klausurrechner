@@ -143,6 +143,19 @@ function showKlausur() {
     );
     zeile2.appendChild(modul);
 
+    // Studiengang
+    let studiengang = getSelect(
+        "Studiengang",
+        ["Diplom", "Bachelor"],
+        klausur?.studiengang,
+        function () {
+            let value = this.options[this.selectedIndex].value;
+            klausur.setStudiengang(value);
+        }
+    );
+    zeile2.appendChild(studiengang);
+
+
     // MC-Schranke fix
     let mc_schranke = getTextfeld(
         "Fixierte Schranke für MC",
@@ -1388,4 +1401,43 @@ function getCheckbox(isChecked, data, eventListener) {
     checkbox.addEventListener("change", eventListener);
 
     return checkbox;
+}
+
+/** ------------------------------------------------------------
+ *
+ * Erzeugt ein <select> Feld mit Optionen und EventListener.
+ * 
+ * @param {*} label Label für das Select-Feld
+ * @param {*} values Werte der Optionen
+ * @param {*} eventListener Eventlistener onChange
+ * 
+ * ------------------------------------------------------------ */
+function getSelect(label, values, value, eventListener) {
+    let divNode = document.createElement("div");
+    divNode.classList.add("form-group", "col-md-6");
+
+    let labelNode = document.createElement("label");
+    labelNode.innerHTML = label;
+    let attr = document.createAttribute("for");
+    attr.value = "select" + idCounter;
+    labelNode.setAttributeNode(attr);
+    divNode.appendChild(labelNode);
+
+    let selectNode = document.createElement("select");
+    selectNode.id = "select" + idCounter++;
+    selectNode.classList.add("form-control");
+    divNode.append(selectNode);
+    for (let value of values) {
+        let option = document.createElement("option");
+        selectNode.append(option);
+        option.innerText = value;
+        option.setAttribute("value", value);
+    }
+
+    if (value) {
+        selectNode.value = value;
+    }
+
+    selectNode.addEventListener("change", eventListener);
+    return divNode;
 }
