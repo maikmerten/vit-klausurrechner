@@ -619,6 +619,17 @@ Klausur.prototype.getNoteGesamt = function (erreichbarTXT, erreichbarMC, noteTXT
 	return note;
 }
 
+Klausur.prototype.getBewertungGesamt = function(erreichbarTXT, erreichbarMC, bewertungTXT, bewertungMC) {
+	if (this?.studiengang === "Bachelor") {
+		// Note für Bachelor
+		return this.getNoteGesamt(erreichbarTXT, erreichbarMC, bewertungTXT, bewertungMC);
+	} else {
+		// Rangpunkte für Diplom
+		return this.getRangpunkteGesamt(erreichbarTXT, erreichbarMC, bewertungTXT, bewertungMC);
+	}
+}
+
+
 Klausur.prototype.getRangpunkteGanzzahl = function (rangpunkte) {
 	let rpganz = rangpunkte;
 	if (rpganz < 5.0) {
@@ -655,7 +666,7 @@ Klausur.prototype.getAuswertung = function () {
 		eintrag.prozentTXT = this.getProzentFuerKennziffer(i, false);
 		eintrag.rangpunkteTXT = this.getRangpunkteFuerProzent(eintrag.prozentTXT, false);
 
-		eintrag.rangpunkteGesamt = this.getRangpunkteGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
+		eintrag.rangpunkteGesamt = this.getBewertungGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
 		eintrag.rangpunkteGanzzahl = this.getRangpunkteGanzzahl(eintrag.rangpunkteGesamt);
 		eintrag.noteGesamt = this.getNote(eintrag.rangpunkteGanzzahl);
 
