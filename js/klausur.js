@@ -731,7 +731,7 @@ Klausur.prototype.getAuswertung = function () {
 
 		eintrag.rangpunkteGesamt = this.getBewertungGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
 		eintrag.rangpunkteGanzzahl = this.getRangpunkteGanzzahl(eintrag.rangpunkteGesamt);
-		eintrag.noteGesamt = this.getNotenText(eintrag.rangpunkteGanzzahl);
+		eintrag.noteGesamt = this.getNotenText(this.isBachelor() ? eintrag.rangpunkteGesamt : eintrag.rangpunkteGanzzahl);
 
 		// stelle Informationen zu den einzelnen Aufgaben zusammen
 		let aufgaben = new Array();
