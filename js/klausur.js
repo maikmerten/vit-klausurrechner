@@ -105,6 +105,14 @@ Klausur.prototype.importPunkteCSV = function (csvstring) {
 	}
 }
 
+Klausur.prototype.isBachelor = function () {
+	return this?.studiengang === "Bachelor";
+}
+
+Klausur.prototype.isDiplom = function () {
+	return !this.isBachelor();
+}
+
 /**
  * 
  */
@@ -126,7 +134,7 @@ Klausur.prototype.exportAuswertungOrgaCSV = function () {
 	let auswertung = this.getAuswertung();
 
 	let result = "";
-	if (this?.studiengang === "Bachelor") {
+	if (this.isBachelor()) {
 		result = "Kennziffer;Note gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Note Textaufg.;Punkte MC;Prozent MC;Note MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
 	} else {
 		result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
@@ -182,7 +190,7 @@ Klausur.prototype.exportAuswertungBeiblattCSV = function () {
 	let auswertung = this.getAuswertung();
 	
 	let result = "";
-	if (this?.studiengang === "Bachelor") {
+	if (this.isBachelor()) {
 		result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Note-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Note-mc;angewendete_Grenze_MC;Klausuranteil_MC;Note_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
 	} else {
 		result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Rangpunkte-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Rangpunkte-mc;angewendete_Grenze_MC;Klausuranteil_MC;Rangpunkte_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
@@ -413,7 +421,7 @@ Klausur.prototype.getMCSchrankeDynamisch = function () {
 	
 	// Für Bachelor: § 38 (4) GVIDVDV
 	// [...] 78 Prozent der durchschnittlichen Punkte, mindestens jedoch 50 Prozent der erreichbaren Punkte
-	if(this?.studiengang === "Bachelor") {
+	if(this.isBachelor()) {
 		let minSchranke = this.getErreichbarePunkte(true) * 0.5;
 		if (schranke < minSchranke) {
 			schranke = minSchranke;
@@ -574,7 +582,7 @@ Klausur.prototype.getNoteFuerProzent = function (prozent, mc) {
 }
 
 Klausur.prototype.getBewertungFuerProzent = function (prozent, mc) {
-	if (this?.studiengang === "Bachelor") {
+	if (this.isBachelor()) {
 		// Bachelor: Noten
 		return this.getNoteFuerProzent(prozent, mc);
 	} else {
@@ -587,7 +595,7 @@ Klausur.prototype.getBewertungFuerProzent = function (prozent, mc) {
 Klausur.prototype.getNotenText = function (bewertung) {
 	if (isNaN(bewertung)) return "";
 
-	if(this?.studiengang === "Bachelor") {
+	if(this.isBachelor()) {
 		// Bachelor: Notentext aus Noten. Tabelle aus § 37 (1) GVIDVDV
 		if (bewertung <= 1.3) return "sehr gut";
 		if (bewertung <= 2.3) return "gut";
@@ -675,7 +683,7 @@ Klausur.prototype.getNoteGesamt = function (erreichbarTXT, erreichbarMC, noteTXT
 }
 
 Klausur.prototype.getBewertungGesamt = function(erreichbarTXT, erreichbarMC, bewertungTXT, bewertungMC) {
-	if (this?.studiengang === "Bachelor") {
+	if (this.isBachelor()) {
 		// Note für Bachelor
 		return this.getNoteGesamt(erreichbarTXT, erreichbarMC, bewertungTXT, bewertungMC);
 	} else {
