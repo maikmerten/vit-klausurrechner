@@ -397,8 +397,7 @@ function showAuswertung(colorize) {
     let container = getEmptiedContainer(true);
 
     let auswertung = klausur.getAuswertung();
-
-    let hasNoten = klausur?.studiengang === "Bachelor";
+    let hasNoten = klausur.isBachelor();
 
 
     // =====================================
@@ -459,6 +458,7 @@ function showAuswertung(colorize) {
     auswertungTabelle.appendChild(kopfTabelle);
     let ueberschriftenTab = [];
     ueberschriftenTab.push("Kennz.");
+    ueberschriftenTab.push("Gesamt");
     ueberschriftenTab.push(hasNoten ? "Note Gesamt" : "Rangp. Gesamt");
     ueberschriftenTab.push("Pkt. Textaufg.");
     ueberschriftenTab.push("% Textaufg.");
@@ -479,6 +479,7 @@ function showAuswertung(colorize) {
 
         let dataTabelle = [];
         dataTabelle.push(getNumberOrEmpty(kennziffer));
+        dataTabelle.push(eintrag.noteGesamt);
         dataTabelle.push(getNumberOrEmpty(eintrag.rangpunkteGesamt));
         dataTabelle.push(getNumberOrEmpty(eintrag.punkteTXT));
         dataTabelle.push(getNumberOrEmpty(eintrag.prozentTXT.toFixed(3)));
@@ -490,7 +491,7 @@ function showAuswertung(colorize) {
         let zeile = getTabellenZeile(false, dataTabelle);
         if (colorize && eintrag.noteGesamt != null && eintrag.noteGesamt != "") {
             let rp = eintrag.rangpunkteGanzzahl;
-            if (klausur?.studiengang === "Bachelor") {
+            if (klausur.isBachelor()) {
                 if (eintrag.rangpunkteGesamt <= 1.3) {
                     rp = 15;
                 } else if (eintrag.rangpunkteGesamt <= 2.3) {
@@ -615,7 +616,7 @@ function showStatistics() {
         };
         Plotly.newPlot('rpHistogramm', data, layout);
     };
-    if (klausur?.studiengang != "Bachelor") {
+    if (klausur.isDiplom()) {
         createRPHistogramm(container);
     }
 
