@@ -14,6 +14,7 @@ function Klausur(jsonObj) {
 	this.maxKennziffer = 50;
 	this.modul = "";
 	this.kommentar = "";
+	this.studiengang = "Diplom"; // "Diplom" oder "Bachelor"
 
 	if (jsonObj) {
 		let keys = Object.keys(jsonObj.aufgaben);
@@ -28,6 +29,9 @@ function Klausur(jsonObj) {
 		this.mcSchrankeFixiert = jsonObj.mcSchrankeFixiert;
 		this.modul = jsonObj.modul;
 		this.kommentar = jsonObj.kommentar;
+		if (jsonObj.studiengang) {
+			this.studiengang = jsonObj.studiengang;
+		}
 	}
 
 }
@@ -49,7 +53,8 @@ Klausur.prototype.toJSONObj = function () {
 		"maxKennziffer": this.maxKennziffer,
 		"mcSchrankeFixiert": this.mcSchrankeFixiert,
 		"modul": this.modul,
-		"kommentar": this.kommentar
+		"kommentar": this.kommentar,
+		"studiengang": this.studiengang
 	}
 }
 
@@ -100,6 +105,14 @@ Klausur.prototype.importPunkteCSV = function (csvstring) {
 	}
 }
 
+Klausur.prototype.isBachelor = function () {
+	return this?.studiengang === "Bachelor";
+}
+
+Klausur.prototype.isDiplom = function () {
+	return !this.isBachelor();
+}
+
 /**
  * 
  */
@@ -119,7 +132,13 @@ Klausur.prototype.exportAuswertungOrgaCSV = function () {
 	}
 
 	let auswertung = this.getAuswertung();
-	let result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
+
+	let result = "";
+	if (this.isBachelor()) {
+		result = "Kennziffer;Note gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Note Textaufg.;Punkte MC;Prozent MC;Note MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
+	} else {
+		result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
+	}
 
 	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
@@ -169,7 +188,13 @@ Klausur.prototype.exportAuswertungBeiblattCSV = function () {
 	let prozentPunkteTXT = 100 - prozentPunkteMC;
 
 	let auswertung = this.getAuswertung();
-	let result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Rangpunkte-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Rangpunkte-mc;angewendete_Grenze_MC;Klausuranteil_MC;Rangpunkte_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
+	
+	let result = "";
+	if (this.isBachelor()) {
+		result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Note-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Note-mc;angewendete_Grenze_MC;Klausuranteil_MC;Note_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
+	} else {
+		result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Rangpunkte-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Rangpunkte-mc;angewendete_Grenze_MC;Klausuranteil_MC;Rangpunkte_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
+	}
 
 	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
@@ -277,6 +302,30 @@ Klausur.prototype.setMaxKennziffer = function (maxKennziffer) {
 
 }
 
+Klausur.prototype.getModul = function () {
+	return this.modul;
+}
+
+Klausur.prototype.setModul = function (modul) {
+	this.modul = modul;
+}
+
+Klausur.prototype.getKommentar = function () {
+	return this.kommentar;
+}
+
+Klausur.prototype.setKommentar = function (kommentar) {
+	this.kommentar = kommentar;
+}
+
+Klausur.prototype.setStudiengang = function (studiengang) {
+	this.studiengang = studiengang;
+}
+
+Klausur.prototype.getStudiengang = function () {
+	return this?.studiengang;
+}
+
 /** 
  * Suche alle Kennziffern, für die Punkte für MC/nicht-MC-Aufgaben eingetragen sind
  */
@@ -368,7 +417,17 @@ Klausur.prototype.getMCSchrankeFest = function () {
 }
 
 Klausur.prototype.getMCSchrankeDynamisch = function () {
-	return this.getPunkteDurchschnitt(true) * 0.78;
+	let schranke = this.getPunkteDurchschnitt(true) * 0.78;
+	
+	// Für Bachelor: § 38 (4) GVIDVDV
+	// [...] 78 Prozent der durchschnittlichen Punkte, mindestens jedoch 50 Prozent der erreichbaren Punkte
+	if(this.isBachelor()) {
+		let minSchranke = this.getErreichbarePunkte(true) * 0.5;
+		if (schranke < minSchranke) {
+			schranke = minSchranke;
+		}
+	}
+	return schranke;
 }
 
 Klausur.prototype.setMCSchrankeFixiert = function (value) {
@@ -438,7 +497,9 @@ Klausur.prototype.getProzentFuerKennziffer = function (kennziffer, mc) {
 	}
 }
 
-
+/*
+ * Für Diplomstudiengang VIT
+ */
 Klausur.prototype.getRangpunkteFuerProzent = function (prozent, mc) {
 	if (mc) {
 		// Berechnung für Multiple-Choice
@@ -483,19 +544,78 @@ Klausur.prototype.getRangpunkteFuerProzent = function (prozent, mc) {
 	}
 }
 
+/*
+ * Für Bachelorstudiengang VIT
+ */
+Klausur.prototype.getNoteFuerProzent = function (prozent, mc) {
+	if (isNaN(prozent)) return NaN;
 
-Klausur.prototype.getNote = function (rangpunkte) {
-	if (isNaN(rangpunkte)) return "";
+	if (mc) {
+		// Berechnung für Multiple-Choice, GVIDVDV § 38 (5)
+		if (prozent >= 87.50) return 1.0;
+		if (prozent >= 75.00) return 1.3;
+		if (prozent >= 66.67) return 1.7;
+		if (prozent >= 58.33) return 2.0;
+		if (prozent >= 50.00) return 2.3;
+		if (prozent >= 41.67) return 2.7;
+		if (prozent >= 33.33) return 3.0;
+		if (prozent >= 25.00) return 3.3;
+		if (prozent >= 12.5) return 3.7;
+		if (prozent >= 0.00) return 4.0;
+		if (prozent >= -50.00) return 5.0;
+		return 6.0;
+	} else {
+		// Berechnung für Textaufgaben, GVIDVDV § 37 (2)
+		if (prozent >= 95) return 1.0;
+		if (prozent >= 90) return 1.3;
+		if (prozent >= 85) return 1.7;
+		if (prozent >= 80) return 2.0;
+		if (prozent >= 75) return 2.3;
+		if (prozent >= 70) return 2.7;
+		if (prozent >= 65) return 3.0;
+		if (prozent >= 60) return 3.3;
+		if (prozent >= 55) return 3.7;
+		if (prozent >= 50) return 4.0;
+		if (prozent >= 25) return 5.0;
+		return 6.0;
+	}
+}
 
-	if (rangpunkte >= 14) return "sehr gut";
-	if (rangpunkte >= 11) return "gut";
-	if (rangpunkte >= 8) return "befriedigend";
-	if (rangpunkte >= 5) return "ausreichend";
-	if (rangpunkte >= 2) return "mangelhaft";
-	return "ungenügend";
+Klausur.prototype.getBewertungFuerProzent = function (prozent, mc) {
+	if (this.isBachelor()) {
+		// Bachelor: Noten
+		return this.getNoteFuerProzent(prozent, mc);
+	} else {
+		// Diplom: Rangpunkte
+		return this.getRangpunkteFuerProzent(prozent, mc);
+	}
 }
 
 
+Klausur.prototype.getNotenText = function (bewertung) {
+	if (isNaN(bewertung)) return "";
+
+	if(this.isBachelor()) {
+		// Bachelor: Notentext aus Noten. Tabelle aus § 37 (1) GVIDVDV
+		if (bewertung <= 1.3) return "sehr gut";
+		if (bewertung <= 2.3) return "gut";
+		if (bewertung <= 3.3) return "befriedigend";
+		if (bewertung <= 4.0) return "ausreichend";
+		if (bewertung <= 5.0) return "mangelhaft";
+	} else {
+		// Diplom: Notentext aus Rangpunkten
+		if (bewertung >= 14) return "sehr gut";
+		if (bewertung >= 11) return "gut";
+		if (bewertung >= 8) return "befriedigend";
+		if (bewertung >= 5) return "ausreichend";
+		if (bewertung >= 2) return "mangelhaft";
+	}
+	return "ungenügend";
+}
+
+/*
+ * Für Diplomstudiengang VIT
+ */
 Klausur.prototype.getRangpunkteGesamt = function (erreichbarTXT, erreichbarMC, rangpunkteTXT, rangpunkteMC) {
 	if (isNaN(erreichbarTXT) || isNaN(erreichbarMC)) return NaN;
 	if (isNaN(rangpunkteTXT) && !isNaN(rangpunkteMC)) return rangpunkteMC;
@@ -518,6 +638,60 @@ Klausur.prototype.getRangpunkteGesamt = function (erreichbarTXT, erreichbarMC, r
 
 	return rangpunkte;
 }
+
+/*
+ * Für Bachelorstudiengang VIT
+ */
+Klausur.prototype.getNoteGesamt = function (erreichbarTXT, erreichbarMC, noteTXT, noteMC) {
+	if (isNaN(erreichbarTXT) || isNaN(erreichbarMC)) return NaN;
+	if (isNaN(noteTXT) && !isNaN(noteMC)) return noteMC;
+	if (!isNaN(noteTXT) && isNaN(noteMC)) return noteTXT;
+	if (isNaN(noteTXT) && isNaN(noteMC)) return NaN;
+
+
+	// wenn beide Noten gleich sind, dann brauchen wir nicht rechnen
+	if (noteTXT == noteMC) {
+		return noteTXT;
+	}
+
+	// diese Form wurde gewählt für gute numerische Präzision
+	let note = ((noteTXT * erreichbarTXT) + (noteMC * erreichbarMC)) / (erreichbarTXT + erreichbarMC);
+
+	// § 37 (6): Bei der Berechnung des gewichteten arithmetischen Mittels und des arithmetischen Mittels wird nur die erste Dezimalstelle hinter dem Komma ohne Rundung berücksichtigt.
+	note *= 10; // eine Stelle nach links
+	note |= 0; // Umwandlung in Ganzzahl ohne Rundung
+	note /= 10; // eine Stelle zurück
+
+	// Tabelle aus § 37 (6):
+	function numerischeNote(note) {
+		if (note >= 5.1) return 6.0;
+		if (note >= 4.1) return 5.0;
+		if (note >= 3.9) return 4.0;
+		if (note >= 3.5) return 3.7;
+		if (note >= 3.2) return 3.3;
+		if (note >= 2.9) return 3.0;
+		if (note >= 2.5) return 2.7;
+		if (note >= 2.2) return 2.3;
+		if (note >= 1.9) return 2.0;
+		if (note >= 1.5) return 1.7;
+		if (note >= 1.2) return 1.3;
+		return 1.0;
+	}
+	note = numerischeNote(note);
+
+	return note;
+}
+
+Klausur.prototype.getBewertungGesamt = function(erreichbarTXT, erreichbarMC, bewertungTXT, bewertungMC) {
+	if (this.isBachelor()) {
+		// Note für Bachelor
+		return this.getNoteGesamt(erreichbarTXT, erreichbarMC, bewertungTXT, bewertungMC);
+	} else {
+		// Rangpunkte für Diplom
+		return this.getRangpunkteGesamt(erreichbarTXT, erreichbarMC, bewertungTXT, bewertungMC);
+	}
+}
+
 
 Klausur.prototype.getRangpunkteGanzzahl = function (rangpunkte) {
 	let rpganz = rangpunkte;
@@ -549,15 +723,15 @@ Klausur.prototype.getAuswertung = function () {
 		let eintrag = new Object();
 		eintrag.punkteMC = this.getPunkteFuerKennziffer(i, true);
 		eintrag.prozentMC = this.getProzentFuerKennziffer(i, true);
-		eintrag.rangpunkteMC = this.getRangpunkteFuerProzent(eintrag.prozentMC, true)
+		eintrag.rangpunkteMC = this.getBewertungFuerProzent(eintrag.prozentMC, true)
 
 		eintrag.punkteTXT = this.getPunkteFuerKennziffer(i, false);
 		eintrag.prozentTXT = this.getProzentFuerKennziffer(i, false);
-		eintrag.rangpunkteTXT = this.getRangpunkteFuerProzent(eintrag.prozentTXT, false);
+		eintrag.rangpunkteTXT = this.getBewertungFuerProzent(eintrag.prozentTXT, false);
 
-		eintrag.rangpunkteGesamt = this.getRangpunkteGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
+		eintrag.rangpunkteGesamt = this.getBewertungGesamt(erreichbarTXT, erreichbarMC, eintrag.rangpunkteTXT, eintrag.rangpunkteMC);
 		eintrag.rangpunkteGanzzahl = this.getRangpunkteGanzzahl(eintrag.rangpunkteGesamt);
-		eintrag.noteGesamt = this.getNote(eintrag.rangpunkteGanzzahl);
+		eintrag.noteGesamt = this.getNotenText(this.isBachelor() ? eintrag.rangpunkteGesamt : eintrag.rangpunkteGanzzahl);
 
 		// stelle Informationen zu den einzelnen Aufgaben zusammen
 		let aufgaben = new Array();
@@ -590,21 +764,4 @@ Klausur.prototype.getAuswertung = function () {
 	}
 	return result;
 }
-
-Klausur.prototype.getModul = function () {
-	return this.modul;
-}
-
-Klausur.prototype.setModul = function (modul) {
-	this.modul = modul;
-}
-
-Klausur.prototype.getKommentar = function () {
-	return this.kommentar;
-}
-
-Klausur.prototype.setKommentar = function (kommentar) {
-	this.kommentar = kommentar;
-}
-
 

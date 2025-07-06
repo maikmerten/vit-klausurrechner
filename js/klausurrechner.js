@@ -143,6 +143,19 @@ function showKlausur() {
     );
     zeile2.appendChild(modul);
 
+    // Studiengang
+    let studiengang = getSelect(
+        "Studiengang",
+        ["Diplom", "Bachelor"],
+        klausur?.studiengang,
+        function () {
+            let value = this.options[this.selectedIndex].value;
+            klausur.setStudiengang(value);
+        }
+    );
+    zeile2.appendChild(studiengang);
+
+
     // MC-Schranke fix
     let mc_schranke = getTextfeld(
         "Fixierte Schranke für MC",
@@ -384,6 +397,7 @@ function showAuswertung(colorize) {
     let container = getEmptiedContainer(true);
 
     let auswertung = klausur.getAuswertung();
+    let hasNoten = klausur.isBachelor();
 
 
     // =====================================
@@ -444,13 +458,14 @@ function showAuswertung(colorize) {
     auswertungTabelle.appendChild(kopfTabelle);
     let ueberschriftenTab = [];
     ueberschriftenTab.push("Kennz.");
-    ueberschriftenTab.push("Rangp. Gesamt");
+    ueberschriftenTab.push("Gesamt");
+    ueberschriftenTab.push(hasNoten ? "Note Gesamt" : "Rangp. Gesamt");
     ueberschriftenTab.push("Pkt. Textaufg.");
     ueberschriftenTab.push("% Textaufg.");
-    ueberschriftenTab.push("Rangp. Textaufg.");
+    ueberschriftenTab.push(hasNoten ? "Note Textaufg." : "Rangp. Textaufg.");
     ueberschriftenTab.push("Pkt. MC");
     ueberschriftenTab.push("% MC");
-    ueberschriftenTab.push("Rangp. MC");
+    ueberschriftenTab.push(hasNoten ? "Note MC" : "Rangp. MC");
 
     kopfTabelle.appendChild(getTabellenZeile(true, ueberschriftenTab));
 
@@ -464,6 +479,7 @@ function showAuswertung(colorize) {
 
         let dataTabelle = [];
         dataTabelle.push(getNumberOrEmpty(kennziffer));
+        dataTabelle.push(eintrag.noteGesamt);
         dataTabelle.push(getNumberOrEmpty(eintrag.rangpunkteGesamt));
         dataTabelle.push(getNumberOrEmpty(eintrag.punkteTXT));
         dataTabelle.push(getNumberOrEmpty(eintrag.prozentTXT.toFixed(3)));
@@ -473,8 +489,25 @@ function showAuswertung(colorize) {
         dataTabelle.push(getNumberOrEmpty(eintrag.rangpunkteMC));
 
         let zeile = getTabellenZeile(false, dataTabelle);
-        if (colorize && eintrag.noteGesamt != null && eintrag.noteGesamt != "")
-            zeile.classList.add("rp" + eintrag.rangpunkteGanzzahl);
+        if (colorize && eintrag.noteGesamt != null && eintrag.noteGesamt != "") {
+            let rp = eintrag.rangpunkteGanzzahl;
+            if (klausur.isBachelor()) {
+                if (eintrag.rangpunkteGesamt <= 1.3) {
+                    rp = 15;
+                } else if (eintrag.rangpunkteGesamt <= 2.3) {
+                    rp = 12;
+                } else if (eintrag.rangpunkteGesamt <= 3.3) {
+                    rp = 9;
+                } else if (eintrag.rangpunkteGesamt <= 4.0) {
+                    rp = 6;
+                } else if (eintrag.rangpunkteGesamt <= 5.0) {
+                    rp = 3;
+                } else {
+                    rp = 0;
+                }
+            }
+            zeile.classList.add("rp" + rp);
+        }
         rumpfTabelle.appendChild(zeile);
 
         /* TODO Titel der Zellen
@@ -519,77 +552,81 @@ function showStatistics() {
     // =====================================
     // Histogramm für Rangpunkte in Karte
     // =====================================
-    let divRangpunkte = document.createElement("div");
-    divRangpunkte.classList.add("container");
-    divRangpunkte.id = "rpHistogramm";
-    cardRangpunkte = getCard("Verteilung der Rangpunkte", divRangpunkte);
-    container.appendChild(cardRangpunkte);
+    function createRPHistogramm(container) {
+        let divRangpunkte = document.createElement("div");
+        divRangpunkte.classList.add("container");
+        divRangpunkte.id = "rpHistogramm";
+        let cardRangpunkte = getCard("Verteilung der Rangpunkte", divRangpunkte);
+        container.appendChild(cardRangpunkte);
 
-    // Daten sammeln
-    ray = new Array();
-    labels = ["15", "14", "13", "12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "0"];
-    for (let i = 0; i <= 15; ++i)
-        ray[i] = 0;
-    keys = Object.keys(auswertung.eintraege);
-    for (let i = 0; i < keys.length; ++i) {
-        let eintrag = auswertung.eintraege[keys[i]];
-        let rp = eintrag.rangpunkteGanzzahl | 0;
-        ray[15 - rp]++;
-    }
+        // Daten sammeln
+        let ray = new Array();
+        labels = ["15", "14", "13", "12", "11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "0"];
+        for (let i = 0; i <= 15; ++i)
+            ray[i] = 0;
+        let keys = Object.keys(auswertung.eintraege);
+        for (let i = 0; i < keys.length; ++i) {
+            let eintrag = auswertung.eintraege[keys[i]];
+            let rp = eintrag.rangpunkteGanzzahl | 0;
+            ray[15 - rp]++;
+        }
 
-    // Plotly.js Diagramm konfigurieren
-    innerColors = [];
-    outerColors = [];
-    for (let rp of labels) {
-        if ((1 * rp) < 5) {
-            innerColors.push(nichtBestandenInnen);
-            outerColors.push(nichtBestandenAussen);
-        }
-        else {
-            innerColors.push(bestandenInnen);
-            outerColors.push(bestandenAussen);
-        }
-    }
-    let data = [
-        {
-            x: labels,
-            y: ray,
-            type: "bar",
-            text: ray.map(String),
-            textposition: 'auto',
-            marker: {
-                color: innerColors,
-                line: {
-                    color: outerColors,
-                    width: 1.5
-                }
+        // Plotly.js Diagramm konfigurieren
+        innerColors = [];
+        outerColors = [];
+        for (let rp of labels) {
+            if ((1 * rp) < 5) {
+                innerColors.push(nichtBestandenInnen);
+                outerColors.push(nichtBestandenAussen);
+            }
+            else {
+                innerColors.push(bestandenInnen);
+                outerColors.push(bestandenAussen);
             }
         }
-    ];
-    let layout = {
-        title: "Rangpunkte",
-        paper_bgcolor: hintergrund,
-        plot_bgcolor: hintergrund,
-        showlegend: false,
-        type: "category",
-        xaxis: {
-            title: 'Rangpunkte',
-            autorange: "reversed"
-        },
-        yaxis: {
-            title: 'Anzahl [ ]'
-        }
+        let data = [
+            {
+                x: labels,
+                y: ray,
+                type: "bar",
+                text: ray.map(String),
+                textposition: 'auto',
+                marker: {
+                    color: innerColors,
+                    line: {
+                        color: outerColors,
+                        width: 1.5
+                    }
+                }
+            }
+        ];
+        let layout = {
+            title: "Rangpunkte",
+            paper_bgcolor: hintergrund,
+            plot_bgcolor: hintergrund,
+            showlegend: false,
+            type: "category",
+            xaxis: {
+                title: 'Rangpunkte',
+                autorange: "reversed"
+            },
+            yaxis: {
+                title: 'Anzahl [ ]'
+            }
+        };
+        Plotly.newPlot('rpHistogramm', data, layout);
     };
-    Plotly.newPlot('rpHistogramm', data, layout);
-
+    if (klausur.isDiplom()) {
+        createRPHistogramm(container);
+    }
 
     // =====================================
-    // Histogramm für Rangpunkte in Karte
+    // Histogramm für Noten in Karte
     // =====================================
     let divNoten = document.createElement("div");
     divNoten.classList.add("container");
     divNoten.id = "notenHistogramm";
-    cardNoten = getCard("Verteilung der Rangpunkte", divNoten);
+    cardNoten = getCard("Verteilung der Noten", divNoten);
     container.appendChild(cardNoten);
 
     // Daten sammeln
@@ -1388,4 +1425,43 @@ function getCheckbox(isChecked, data, eventListener) {
     checkbox.addEventListener("change", eventListener);
 
     return checkbox;
+}
+
+/** ------------------------------------------------------------
+ *
+ * Erzeugt ein <select> Feld mit Optionen und EventListener.
+ * 
+ * @param {*} label Label für das Select-Feld
+ * @param {*} values Werte der Optionen
+ * @param {*} eventListener Eventlistener onChange
+ * 
+ * ------------------------------------------------------------ */
+function getSelect(label, values, value, eventListener) {
+    let divNode = document.createElement("div");
+    divNode.classList.add("form-group", "col-md-6");
+
+    let labelNode = document.createElement("label");
+    labelNode.innerHTML = label;
+    let attr = document.createAttribute("for");
+    attr.value = "select" + idCounter;
+    labelNode.setAttributeNode(attr);
+    divNode.appendChild(labelNode);
+
+    let selectNode = document.createElement("select");
+    selectNode.id = "select" + idCounter++;
+    selectNode.classList.add("form-control");
+    divNode.append(selectNode);
+    for (let value of values) {
+        let option = document.createElement("option");
+        selectNode.append(option);
+        option.innerText = value;
+        option.setAttribute("value", value);
+    }
+
+    if (value) {
+        selectNode.value = value;
+    }
+
+    selectNode.addEventListener("change", eventListener);
+    return divNode;
 }
