@@ -15,6 +15,7 @@ function Klausur(jsonObj) {
 	this.modul = "";
 	this.kommentar = "";
 	this.studiengang = "Diplom"; // "Diplom" oder "Bachelor"
+	this.matrikel = {};
 
 	if (jsonObj) {
 		let keys = Object.keys(jsonObj.aufgaben);
@@ -31,6 +32,9 @@ function Klausur(jsonObj) {
 		this.kommentar = jsonObj.kommentar;
 		if (jsonObj.studiengang) {
 			this.studiengang = jsonObj.studiengang;
+		}
+		if (jsonObj.matrikel) {
+			this.matrikel = jsonObj.matrikel;
 		}
 	}
 
@@ -54,7 +58,8 @@ Klausur.prototype.toJSONObj = function () {
 		"mcSchrankeFixiert": this.mcSchrankeFixiert,
 		"modul": this.modul,
 		"kommentar": this.kommentar,
-		"studiengang": this.studiengang
+		"studiengang": this.studiengang,
+		"matrikel": this.matrikel
 	}
 }
 
@@ -300,6 +305,26 @@ Klausur.prototype.setMaxKennziffer = function (maxKennziffer) {
 		aufgabe.ensureMaxKennziffer(maxKennziffer);
 	}
 
+	// iteriere durch alle Matrikelnummer-Zuordnungen und lösche
+	// alle Einträge, die größe als die maximale Kennziffer sind
+	keys = Object.keys(this.matrikel);
+	for(let i = 0; i < keys.length; ++i) {
+		let key = keys[i];
+		if(key > maxKennziffer) {
+			delete this.matrikel[key];
+		}
+	}
+
+}
+
+Klausur.prototype.setMatrikelZuordnung = function(kennziffer, matrikelnr) {
+	if(isNaN(matrikelnr) || matrikelnr < 0 || Object.values(this.matrikel).includes(matrikelnr)) {
+        delete this.matrikel[kennziffer];
+		matrikelnr = NaN;
+	} else {
+		klausur.matrikel[kennziffer] = matrikelnr;
+	}
+	return matrikelnr;
 }
 
 Klausur.prototype.getModul = function () {

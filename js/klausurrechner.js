@@ -26,6 +26,7 @@ var idCounter = 0;
 function init() {
     // EventListener
     document.getElementById("bKlausur").addEventListener("click", showKlausur);
+    document.getElementById("bMatrikel").addEventListener("click", showMatrikel);
     document.getElementById("bPunkte").addEventListener("click", function(){showPunkte(false)});
     document.getElementById("bAuswertung").addEventListener("click", function(){showAuswertung(false)});
     document.getElementById("bStatistiken").addEventListener("click", showStatistics);
@@ -288,6 +289,62 @@ function showKlausur() {
     }
 }
 
+/** ------------------------------------------------------------
+ * 
+ * Erzeugt die Ansicht für die Matrikelnummern
+ * 
+ * ------------------------------------------------------------ */
+function showMatrikel() {
+    // Navbar aktualisieren
+    aktualisiereNavBar("bMatrikel");
+    showButtonsMatrikel();
+
+    let container = getEmptiedContainer(false);
+
+    let table = document.createElement("table");
+    container.append(table);
+    table.classList.add("table", "table-sm", "table-hover", "punktetabelle");
+
+    let tr = document.createElement("tr");
+    table.append(tr);
+
+    let th = document.createElement("th");
+    tr.append(th);
+    th.innerText = "Kennziffer";
+
+    th = document.createElement("th");
+    tr.append(th);
+    th.innerText = "Matrikelnummer";
+
+    let maxKennziffer = klausur.getMaxKennziffer();
+    for(let kennziffer = 1; kennziffer <= maxKennziffer; kennziffer++) {
+
+        let matrikelnr = klausur.matrikel[kennziffer];
+        if(!matrikelnr) {
+            matrikelnr = "";
+        }
+
+        tr = document.createElement("tr");
+        table.append(tr);
+
+        let td = document.createElement("td");
+        tr.append(td);
+        td.innerText = kennziffer;
+
+        td = document.createElement("td");
+        tr.append(td);
+        
+        let input = document.createElement("input");
+        td.append(input);
+        input.value = matrikelnr;
+        input.addEventListener("change", function(ev) {
+            let matrikelnr = parseInt(this.value);
+            matrikelnr = klausur.setMatrikelZuordnung(kennziffer, matrikelnr);
+            this.value = isNaN(matrikelnr) ? "" : matrikelnr;
+        });
+
+    }
+}
 
 
 
@@ -999,6 +1056,18 @@ function showButtonsKlausur() {
     ul.appendChild(button);
 }
 
+
+/** ------------------------------------------------------------
+ *
+ * Zeigt die passenden Buttons für den Tab Matrikelnummern
+ * 
+ * ------------------------------------------------------------ */
+
+function showButtonsMatrikel() {
+    let ul = hideButtons();
+
+    // TODO: Export etc.?
+}
 
 /** ------------------------------------------------------------
  *
