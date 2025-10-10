@@ -338,9 +338,9 @@ function showMatrikel() {
         td.append(input);
         input.value = matrikelnr;
         input.addEventListener("change", function(ev) {
-            let matrikelnr = parseInt(this.value);
+            let matrikelnr = this.value;
             matrikelnr = klausur.setMatrikelZuordnung(kennziffer, matrikelnr);
-            this.value = isNaN(matrikelnr) ? "" : matrikelnr;
+            this.value = (matrikelnr ==  null) ? "" : matrikelnr;
         });
 
     }

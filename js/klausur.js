@@ -318,9 +318,22 @@ Klausur.prototype.setMaxKennziffer = function (maxKennziffer) {
 }
 
 Klausur.prototype.setMatrikelZuordnung = function(kennziffer, matrikelnr) {
-	if(isNaN(matrikelnr) || matrikelnr < 0 || Object.values(this.matrikel).includes(matrikelnr)) {
+	const testMatrikel = (matrikelnr) => {
+		matrikelnr = ("" + matrikelnr).toUpperCase();
+		if(matrikelnr.indexOf("VI") != 0) {
+			return null;
+		}
+		const nr = parseInt(matrikelnr.substring(2));
+		if(isNaN(nr)) {
+			return null;
+		}
+		return "VI" + (""+ nr).padStart(8, "0");
+	}
+
+	matrikelnr = testMatrikel(matrikelnr);
+	if(matrikelnr == null || Object.values(this.matrikel).includes(matrikelnr)) {
         delete this.matrikel[kennziffer];
-		matrikelnr = NaN;
+		matrikelnr = null;
 	} else {
 		klausur.matrikel[kennziffer] = matrikelnr;
 	}
