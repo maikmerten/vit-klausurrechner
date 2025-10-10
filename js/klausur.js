@@ -15,7 +15,7 @@ function Klausur(jsonObj) {
 	this.modul = "";
 	this.kommentar = "";
 	this.studiengang = "Diplom"; // "Diplom" oder "Bachelor"
-	this.matrikel = {};
+	this.kennziffern = {};
 
 	if (jsonObj) {
 		let keys = Object.keys(jsonObj.aufgaben);
@@ -33,8 +33,8 @@ function Klausur(jsonObj) {
 		if (jsonObj.studiengang) {
 			this.studiengang = jsonObj.studiengang;
 		}
-		if (jsonObj.matrikel) {
-			this.matrikel = jsonObj.matrikel;
+		if (jsonObj.kennziffern) {
+			this.kennziffern = jsonObj.kennziffern;
 		}
 	}
 
@@ -59,7 +59,7 @@ Klausur.prototype.toJSONObj = function () {
 		"modul": this.modul,
 		"kommentar": this.kommentar,
 		"studiengang": this.studiengang,
-		"matrikel": this.matrikel
+		"kennziffern": this.kennziffern
 	}
 }
 
@@ -305,24 +305,28 @@ Klausur.prototype.setMaxKennziffer = function (maxKennziffer) {
 		aufgabe.ensureMaxKennziffer(maxKennziffer);
 	}
 
-	// iteriere durch alle Matrikelnummer-Zuordnungen und lösche
+	// iteriere durch alle Kennziffer-Informationen und lösche
 	// alle Einträge, die größe als die maximale Kennziffer sind
-	keys = Object.keys(this.matrikel);
+	keys = Object.keys(this.kennziffern);
 	for(let i = 0; i < keys.length; ++i) {
 		let key = keys[i];
 		if(key > maxKennziffer) {
-			delete this.matrikel[key];
+			delete this.kennziffern[key];
 		}
 	}
 
 }
 
-Klausur.prototype.getMatrikelObjekt = function(kennziffer) {
-	let obj = this.matrikel[kennziffer];
+Klausur.prototype.getKennzifferObjekt = function(kennziffer) {
+	let obj = this.kennziffern[kennziffer];
 	if(!obj) {
 		obj = {};
 	}
 	return obj;
+}
+
+Klausur.prototype.setKennzifferObjekt = function(kennziffer, obj) {
+	this.kennziffern[kennziffer] = obj;
 }
 
 Klausur.prototype.setMatrikelNummer = function(kennziffer, matrikelnr) {
@@ -351,34 +355,34 @@ Klausur.prototype.setMatrikelNummer = function(kennziffer, matrikelnr) {
 	}
 
 	matrikelnr = testMatrikel(kennziffer, matrikelnr);
-	let obj = this.getMatrikelObjekt(kennziffer);
+	let obj = this.getKennzifferObjekt(kennziffer);
 	if(matrikelnr == null) {
-        delete obj["nr"];
+        delete obj["mnr"];
 		return;
 	}
 
-	obj["nr"] = matrikelnr;
-	this.matrikel[kennziffer] = obj;
+	obj["mnr"] = matrikelnr;
+	this.setKennzifferObjekt(kennziffer, obj);
 }
 
 Klausur.prototype.getMatrikelNummer = function(kennziffer) {
-	let obj = this.getMatrikelObjekt(kennziffer);
-	return obj?.nr ? obj.nr : null;
+	let obj = this.getKennzifferObjekt(kennziffer);
+	return obj?.mnr ? obj.mnr : null;
 }
 
 
 Klausur.prototype.setMatrikelFehlt = function(kennziffer, fehlt) {
-	let obj = this.getMatrikelObjekt(kennziffer);
+	let obj = this.getKennzifferObjekt(kennziffer);
 	if(fehlt) {
 		obj["fehlt"] = 1;
 	} else {
 		delete obj["fehlt"];
 	}
-	this.matrikel[kennziffer] = obj;
+	this.setKennzifferObjekt(kennziffer, obj);
 }
 
 Klausur.prototype.getMatrikelFehlt = function(kennziffer) {
-	let obj = this.getMatrikelObjekt(kennziffer);
+	let obj = this.getKennzifferObjekt(kennziffer);
 	return obj?.fehlt ? true : false;
 }
 
