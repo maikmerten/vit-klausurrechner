@@ -332,10 +332,8 @@ Klausur.prototype.setKennzifferObjekt = function(kennziffer, obj) {
 Klausur.prototype.setMatrikelNummer = function(kennziffer, matrikelnr) {
 	const testMatrikel = (kennziffer, matrikelnr) => {
 		matrikelnr = ("" + matrikelnr).toUpperCase();
-		if(matrikelnr.indexOf("VI") != 0) {
-			return null;
-		}
-		let nr = parseInt(matrikelnr.substring(2));
+		let nrstart = (matrikelnr.indexOf("VI") == 0) ? 2 : 0;
+		let nr = parseInt(matrikelnr.substring(nrstart));
 		if(isNaN(nr)) {
 			return null;
 		}
