@@ -317,27 +317,69 @@ Klausur.prototype.setMaxKennziffer = function (maxKennziffer) {
 
 }
 
-Klausur.prototype.setMatrikelZuordnung = function(kennziffer, matrikelnr) {
-	const testMatrikel = (matrikelnr) => {
+Klausur.prototype.getMatrikelObjekt = function(kennziffer) {
+	let obj = this.matrikel[kennziffer];
+	if(!obj) {
+		obj = {};
+	}
+	return obj;
+}
+
+Klausur.prototype.setMatrikelNummer = function(kennziffer, matrikelnr) {
+	const testMatrikel = (kennziffer, matrikelnr) => {
 		matrikelnr = ("" + matrikelnr).toUpperCase();
 		if(matrikelnr.indexOf("VI") != 0) {
 			return null;
 		}
-		const nr = parseInt(matrikelnr.substring(2));
+		let nr = parseInt(matrikelnr.substring(2));
 		if(isNaN(nr)) {
 			return null;
 		}
-		return "VI" + (""+ nr).padStart(8, "0");
+		nr =  "VI" + (""+ nr).padStart(8, "0");
+
+		// teste auf Duplikate
+		for(let kennz = 1; kennz <= this.getMaxKennziffer(); kennz++) {
+			if(kennz == kennziffer) {
+				continue;
+			}
+			if(this.getMatrikelNummer(kennz) == nr) {
+				// Duplikat erkannt
+				return null;
+			}
+		}
+		return nr;
 	}
 
-	matrikelnr = testMatrikel(matrikelnr);
-	if(matrikelnr == null || Object.values(this.matrikel).includes(matrikelnr)) {
-        delete this.matrikel[kennziffer];
-		matrikelnr = null;
-	} else {
-		klausur.matrikel[kennziffer] = matrikelnr;
+	matrikelnr = testMatrikel(kennziffer, matrikelnr);
+	let obj = this.getMatrikelObjekt(kennziffer);
+	if(matrikelnr == null) {
+        delete obj["nr"];
+		return;
 	}
-	return matrikelnr;
+
+	obj["nr"] = matrikelnr;
+	this.matrikel[kennziffer] = obj;
+}
+
+Klausur.prototype.getMatrikelNummer = function(kennziffer) {
+	let obj = this.getMatrikelObjekt(kennziffer);
+	return obj?.nr ? obj.nr : null;
+}
+
+
+Klausur.prototype.setMatrikelFehlt = function(kennziffer, fehlt) {
+	let obj = this.getMatrikelObjekt(kennziffer);
+	if(fehlt) {
+		obj["fehlt"] = 1;
+	} else {
+		delete obj["fehlt"];
+	}
+	this.matrikel[kennziffer] = obj;
+}
+
+Klausur.prototype.getMatrikelFehlt = function(kennziffer) {
+	let obj = this.getMatrikelObjekt(kennziffer);
+	return obj?.fehlt ? true : false;
 }
 
 Klausur.prototype.getModul = function () {

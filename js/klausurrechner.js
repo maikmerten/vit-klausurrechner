@@ -308,21 +308,18 @@ function showMatrikel() {
     let tr = document.createElement("tr");
     table.append(tr);
 
-    let th = document.createElement("th");
-    tr.append(th);
-    th.innerText = "Kennziffer";
+    const theaders = ["Kennziffer", "Matrikelnummer", "fehlt"];
+    for(const head of theaders) {
+        const th = document.createElement("th");
+        tr.append(th);
+        th.append(head);
+    }
 
-    th = document.createElement("th");
-    tr.append(th);
-    th.innerText = "Matrikelnummer";
 
     let maxKennziffer = klausur.getMaxKennziffer();
     for(let kennziffer = 1; kennziffer <= maxKennziffer; kennziffer++) {
-
-        let matrikelnr = klausur.matrikel[kennziffer];
-        if(!matrikelnr) {
-            matrikelnr = "";
-        }
+        let matrikelnr = klausur.getMatrikelNummer(kennziffer);
+        let fehlt = klausur.getMatrikelFehlt(kennziffer);
 
         tr = document.createElement("tr");
         table.append(tr);
@@ -334,13 +331,24 @@ function showMatrikel() {
         td = document.createElement("td");
         tr.append(td);
         
-        let input = document.createElement("input");
-        td.append(input);
-        input.value = matrikelnr;
-        input.addEventListener("change", function(ev) {
-            let matrikelnr = this.value;
-            matrikelnr = klausur.setMatrikelZuordnung(kennziffer, matrikelnr);
-            this.value = (matrikelnr ==  null) ? "" : matrikelnr;
+        let inputNr = document.createElement("input");
+        td.append(inputNr);
+        inputNr.value = matrikelnr;
+        inputNr.addEventListener("change", function(ev) {
+            klausur.setMatrikelNummer(kennziffer, inputNr.value);
+            let mnr = klausur.getMatrikelNummer(kennziffer);
+            inputNr.value = (mnr ==  null) ? "" : mnr;
+        });
+
+        td = document.createElement("td");
+        tr.append(td)
+        let checkboxFehlt = document.createElement("input");
+        td.append(checkboxFehlt);
+        checkboxFehlt.setAttribute("type", "checkbox");
+        checkboxFehlt.checked = fehlt ? true : false;
+        checkboxFehlt.addEventListener("change", (ev) => {
+            klausur.setMatrikelFehlt(kennziffer, checkboxFehlt.checked);
+            checkboxFehlt.checked = klausur.getMatrikelFehlt(kennziffer);
         });
 
     }
