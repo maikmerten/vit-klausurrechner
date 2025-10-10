@@ -371,7 +371,7 @@ Klausur.prototype.getMatrikelNummer = function(kennziffer) {
 }
 
 
-Klausur.prototype.setMatrikelFehlt = function(kennziffer, fehlt) {
+Klausur.prototype.setKennzifferFehlt = function(kennziffer, fehlt) {
 	let obj = this.getKennzifferObjekt(kennziffer);
 	if(fehlt) {
 		obj["fehlt"] = 1;
@@ -381,7 +381,7 @@ Klausur.prototype.setMatrikelFehlt = function(kennziffer, fehlt) {
 	this.setKennzifferObjekt(kennziffer, obj);
 }
 
-Klausur.prototype.getMatrikelFehlt = function(kennziffer) {
+Klausur.prototype.getKennzifferFehlt = function(kennziffer) {
 	let obj = this.getKennzifferObjekt(kennziffer);
 	return obj?.fehlt ? true : false;
 }

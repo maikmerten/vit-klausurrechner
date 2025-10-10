@@ -319,7 +319,7 @@ function showMatrikel() {
     let maxKennziffer = klausur.getMaxKennziffer();
     for(let kennziffer = 1; kennziffer <= maxKennziffer; kennziffer++) {
         let matrikelnr = klausur.getMatrikelNummer(kennziffer);
-        let fehlt = klausur.getMatrikelFehlt(kennziffer);
+        let fehlt = klausur.getKennzifferFehlt(kennziffer);
 
         tr = document.createElement("tr");
         table.append(tr);
@@ -347,8 +347,8 @@ function showMatrikel() {
         checkboxFehlt.setAttribute("type", "checkbox");
         checkboxFehlt.checked = fehlt ? true : false;
         checkboxFehlt.addEventListener("change", (ev) => {
-            klausur.setMatrikelFehlt(kennziffer, checkboxFehlt.checked);
-            checkboxFehlt.checked = klausur.getMatrikelFehlt(kennziffer);
+            klausur.setKennzifferFehlt(kennziffer, checkboxFehlt.checked);
+            checkboxFehlt.checked = klausur.getKennzifferFehlt(kennziffer);
         });
 
     }
