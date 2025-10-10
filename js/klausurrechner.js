@@ -545,6 +545,11 @@ function showAuswertung(colorize) {
     auswertungTabelle.appendChild(rumpfTabelle);
 
     for (let kennziffer = auswertung.minKennziffer; kennziffer <= auswertung.maxKennziffer; ++kennziffer) {
+        // überspringe fehlende Kennziffern
+        if(klausur.getKennzifferFehlt(kennziffer)) {
+            continue;
+        }
+
         let eintrag = auswertung.eintraege[kennziffer];
 
         let dataTabelle = [];
