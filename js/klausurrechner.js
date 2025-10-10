@@ -414,6 +414,11 @@ function showPunkte(colorize) {
                 }
             );
 
+            // deaktiviere Input for fehlende Kennziffern
+            if(klausur.getKennzifferFehlt(kennziffer)) {
+                input.setAttribute("disabled", "1")
+            }
+
             if (colorize) {
                 let prozent = Math.round((punkte / aufgabe.getMaxPunkte()) * 10);
                 input.classList.add("p" + prozent);
