@@ -26,6 +26,7 @@ var idCounter = 0;
 function init() {
     // EventListener
     document.getElementById("bKlausur").addEventListener("click", showKlausur);
+    document.getElementById("bMatrikel").addEventListener("click", showMatrikel);
     document.getElementById("bPunkte").addEventListener("click", function(){showPunkte(false)});
     document.getElementById("bAuswertung").addEventListener("click", function(){showAuswertung(false)});
     document.getElementById("bStatistiken").addEventListener("click", showStatistics);
@@ -288,6 +289,70 @@ function showKlausur() {
     }
 }
 
+/** ------------------------------------------------------------
+ * 
+ * Erzeugt die Ansicht für die Matrikelnummern
+ * 
+ * ------------------------------------------------------------ */
+function showMatrikel() {
+    // Navbar aktualisieren
+    aktualisiereNavBar("bMatrikel");
+    showButtonsMatrikel();
+
+    let container = getEmptiedContainer(false);
+
+    let table = document.createElement("table");
+    container.append(table);
+    table.classList.add("table", "table-sm", "table-hover", "punktetabelle");
+
+    let tr = document.createElement("tr");
+    table.append(tr);
+
+    const theaders = ["Kennziffer", "Matrikelnummer", "fehlt"];
+    for(const head of theaders) {
+        const th = document.createElement("th");
+        tr.append(th);
+        th.append(head);
+    }
+
+
+    let maxKennziffer = klausur.getMaxKennziffer();
+    for(let kennziffer = 1; kennziffer <= maxKennziffer; kennziffer++) {
+        let matrikelnr = klausur.getMatrikelNummer(kennziffer);
+        let fehlt = klausur.getKennzifferFehlt(kennziffer);
+
+        tr = document.createElement("tr");
+        table.append(tr);
+
+        let td = document.createElement("td");
+        tr.append(td);
+        td.innerText = kennziffer;
+
+        td = document.createElement("td");
+        tr.append(td);
+        
+        let inputNr = document.createElement("input");
+        td.append(inputNr);
+        inputNr.value = matrikelnr;
+        inputNr.addEventListener("change", function(ev) {
+            klausur.setMatrikelNummer(kennziffer, inputNr.value);
+            let mnr = klausur.getMatrikelNummer(kennziffer);
+            inputNr.value = (mnr ==  null) ? "" : mnr;
+        });
+
+        td = document.createElement("td");
+        tr.append(td)
+        let checkboxFehlt = document.createElement("input");
+        td.append(checkboxFehlt);
+        checkboxFehlt.setAttribute("type", "checkbox");
+        checkboxFehlt.checked = fehlt ? true : false;
+        checkboxFehlt.addEventListener("change", (ev) => {
+            klausur.setKennzifferFehlt(kennziffer, checkboxFehlt.checked);
+            checkboxFehlt.checked = klausur.getKennzifferFehlt(kennziffer);
+        });
+
+    }
+}
 
 
 
@@ -348,6 +413,11 @@ function showPunkte(colorize) {
                     input.val(punkte == null ? "" : punkte);
                 }
             );
+
+            // deaktiviere Input for fehlende Kennziffern
+            if(klausur.getKennzifferFehlt(kennziffer)) {
+                input.setAttribute("disabled", "1")
+            }
 
             if (colorize) {
                 let prozent = Math.round((punkte / aufgabe.getMaxPunkte()) * 10);
@@ -475,6 +545,11 @@ function showAuswertung(colorize) {
     auswertungTabelle.appendChild(rumpfTabelle);
 
     for (let kennziffer = auswertung.minKennziffer; kennziffer <= auswertung.maxKennziffer; ++kennziffer) {
+        // überspringe fehlende Kennziffern
+        if(klausur.getKennzifferFehlt(kennziffer)) {
+            continue;
+        }
+
         let eintrag = auswertung.eintraege[kennziffer];
 
         let dataTabelle = [];
@@ -999,6 +1074,18 @@ function showButtonsKlausur() {
     ul.appendChild(button);
 }
 
+
+/** ------------------------------------------------------------
+ *
+ * Zeigt die passenden Buttons für den Tab Matrikelnummern
+ * 
+ * ------------------------------------------------------------ */
+
+function showButtonsMatrikel() {
+    let ul = hideButtons();
+
+    // TODO: Export etc.?
+}
 
 /** ------------------------------------------------------------
  *

@@ -15,6 +15,7 @@ function Klausur(jsonObj) {
 	this.modul = "";
 	this.kommentar = "";
 	this.studiengang = "Diplom"; // "Diplom" oder "Bachelor"
+	this.kennziffern = {};
 
 	if (jsonObj) {
 		let keys = Object.keys(jsonObj.aufgaben);
@@ -31,6 +32,9 @@ function Klausur(jsonObj) {
 		this.kommentar = jsonObj.kommentar;
 		if (jsonObj.studiengang) {
 			this.studiengang = jsonObj.studiengang;
+		}
+		if (jsonObj.kennziffern) {
+			this.kennziffern = jsonObj.kennziffern;
 		}
 	}
 
@@ -54,7 +58,8 @@ Klausur.prototype.toJSONObj = function () {
 		"mcSchrankeFixiert": this.mcSchrankeFixiert,
 		"modul": this.modul,
 		"kommentar": this.kommentar,
-		"studiengang": this.studiengang
+		"studiengang": this.studiengang,
+		"kennziffern": this.kennziffern
 	}
 }
 
@@ -139,6 +144,7 @@ Klausur.prototype.exportAuswertungOrgaCSV = function () {
 	} else {
 		result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
 	}
+	result += "Matrikelnummer;fehlt;"
 
 	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
@@ -160,6 +166,13 @@ Klausur.prototype.exportAuswertungOrgaCSV = function () {
 		result += formatFixed(auswertung.festeMindestpunktzahlMC, 3) + ";";
 		result += formatFixed(auswertung.dynamischeMindestpunktzahlMC, 3) + ";";
 		result += formatFixed(auswertung.mindestpunktzahlMC, 3) + ";";
+
+		const kennObj = this?.kennziffern[kennziffer];
+		const fehlt = kennObj?.fehlt ? "ja" : "nein";
+		const mnr = kennObj?.mnr ? kennObj?.mnr : "";
+
+		result += mnr + ";";
+		result += fehlt + ";";
 	}
 
 	return result;
@@ -300,6 +313,83 @@ Klausur.prototype.setMaxKennziffer = function (maxKennziffer) {
 		aufgabe.ensureMaxKennziffer(maxKennziffer);
 	}
 
+	// iteriere durch alle Kennziffer-Informationen und lösche
+	// alle Einträge, die größe als die maximale Kennziffer sind
+	keys = Object.keys(this.kennziffern);
+	for(let i = 0; i < keys.length; ++i) {
+		let key = keys[i];
+		if(key > maxKennziffer) {
+			delete this.kennziffern[key];
+		}
+	}
+
+}
+
+Klausur.prototype.getKennzifferObjekt = function(kennziffer) {
+	let obj = this.kennziffern[kennziffer];
+	if(!obj) {
+		obj = {};
+	}
+	return obj;
+}
+
+Klausur.prototype.setKennzifferObjekt = function(kennziffer, obj) {
+	this.kennziffern[kennziffer] = obj;
+}
+
+Klausur.prototype.setMatrikelNummer = function(kennziffer, matrikelnr) {
+	const testMatrikel = (kennziffer, matrikelnr) => {
+		matrikelnr = ("" + matrikelnr).toUpperCase();
+		let nrstart = (matrikelnr.indexOf("VI") == 0) ? 2 : 0;
+		let nr = parseInt(matrikelnr.substring(nrstart));
+		if(isNaN(nr)) {
+			return null;
+		}
+		nr =  "VI" + (""+ nr).padStart(8, "0");
+
+		// teste auf Duplikate
+		for(let kennz = 1; kennz <= this.getMaxKennziffer(); kennz++) {
+			if(kennz == kennziffer) {
+				continue;
+			}
+			if(this.getMatrikelNummer(kennz) == nr) {
+				// Duplikat erkannt
+				return null;
+			}
+		}
+		return nr;
+	}
+
+	matrikelnr = testMatrikel(kennziffer, matrikelnr);
+	let obj = this.getKennzifferObjekt(kennziffer);
+	if(matrikelnr == null) {
+        delete obj["mnr"];
+		return;
+	}
+
+	obj["mnr"] = matrikelnr;
+	this.setKennzifferObjekt(kennziffer, obj);
+}
+
+Klausur.prototype.getMatrikelNummer = function(kennziffer) {
+	let obj = this.getKennzifferObjekt(kennziffer);
+	return obj?.mnr ? obj.mnr : null;
+}
+
+
+Klausur.prototype.setKennzifferFehlt = function(kennziffer, fehlt) {
+	let obj = this.getKennzifferObjekt(kennziffer);
+	if(fehlt) {
+		obj["fehlt"] = 1;
+	} else {
+		delete obj["fehlt"];
+	}
+	this.setKennzifferObjekt(kennziffer, obj);
+}
+
+Klausur.prototype.getKennzifferFehlt = function(kennziffer) {
+	let obj = this.getKennzifferObjekt(kennziffer);
+	return obj?.fehlt ? true : false;
 }
 
 Klausur.prototype.getModul = function () {
