@@ -144,6 +144,7 @@ Klausur.prototype.exportAuswertungOrgaCSV = function () {
 	} else {
 		result = "Kennziffer;Rangpunkte gesamt;Punkte Textaufgaben;Prozent Textaufgaben;Rangpunkte Textaufg.;Punkte MC;Prozent MC;Rangpunkte MC;;Max Punkte TXT;Max Punkte MC;Punktedurchschnitt MC;Mindestpunktzahl MC fest;Mindestpunktzahl MC dynamisch;Mindestpunktzahl MC angewendet;";
 	}
+	result += "Matrikelnummer;fehlt;"
 
 	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
@@ -165,6 +166,13 @@ Klausur.prototype.exportAuswertungOrgaCSV = function () {
 		result += formatFixed(auswertung.festeMindestpunktzahlMC, 3) + ";";
 		result += formatFixed(auswertung.dynamischeMindestpunktzahlMC, 3) + ";";
 		result += formatFixed(auswertung.mindestpunktzahlMC, 3) + ";";
+
+		const kennObj = this?.kennziffern[kennziffer];
+		const fehlt = kennObj?.fehlt ? "ja" : "nein";
+		const mnr = kennObj?.mnr ? kennObj?.mnr : "";
+
+		result += mnr + ";";
+		result += fehlt + ";";
 	}
 
 	return result;
