@@ -208,6 +208,7 @@ Klausur.prototype.exportAuswertungBeiblattCSV = function () {
 	} else {
 		result = "Modul;Kennziffer;Max-punkte-txt;Punkte-txt;Prozent-txt;Rangpunkte-txt;Klausuranteil-txt;max-punkte-mc;Punkte-mc;Prozent-mc;Rangpunkte-mc;angewendete_Grenze_MC;Klausuranteil_MC;Rangpunkte_Klausur;Bezeichnung_Aufgabe;Aufgabentyp;maximale-punkte;erreichte-punkte;letzter;";
 	}
+	result += "Matrikelnummer;fehlt;"
 
 	for (let kennziffer = this.getMinKennziffer(); kennziffer <= this.getMaxKennziffer(); ++kennziffer) {
 		let eintrag = auswertung.eintraege[kennziffer];
@@ -234,6 +235,12 @@ Klausur.prototype.exportAuswertungBeiblattCSV = function () {
 			result += formatNumber(aufgabe.maxPunkte) + ";";
 			result += formatNumber(aufgabe.punkte) + ";";
 			result += ((i == aufgaben.length - 1) ? 1 : 0) + ";";
+
+			const kennObj = this?.kennziffern[kennziffer];
+			const fehlt = kennObj?.fehlt ? "ja" : "nein";
+			const mnr = kennObj?.mnr ? kennObj?.mnr : "";
+			result += mnr + ";";
+			result += fehlt + ";";
 		}
 	}
 
